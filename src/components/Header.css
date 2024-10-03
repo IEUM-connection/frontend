@@ -68,17 +68,18 @@
 
 .alert-icon {
     width: 44px;
+    padding-top: 4px;
     cursor: pointer;
 }
 
 .alert-icon img {
-    width: 34px;
+    width: 30px;
 }
 
 .alert-count {
     position: absolute;
-    top: 21px;
-    right: 524px;
+    top: 24px;
+    right: 440px;
     background-color: #FF0000;
     color: white;
     border-radius: 50%;

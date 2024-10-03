@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginModal.css';
 
 const LoginModal = ({ onClose }) => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리용
 
@@ -32,7 +34,7 @@ const LoginModal = ({ onClose }) => {
                         <button className="login-modal-button" onClick={handleLogin}>로그인</button>
                     </div>
                     <div className="login-function">
-                        <div className="member-subscribe">회원가입</div>
+                        <div className="signup" onClick={() => navigate('/signup')}>회원가입</div>
                         <div className="find-email">이메일 찾기</div>
                         <div className="find-password">비밀번호 찾기</div>
                     </div>
