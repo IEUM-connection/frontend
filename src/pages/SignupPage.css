@@ -1,0 +1,161 @@
+.signup-wrap {
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.signup-logo {
+    width: 200px;
+    margin: 0 auto;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+
+.signup-logo img {
+    width: 300px;
+}
+
+.signup-container {
+    width: 100%;
+    height: auto;
+    border-top: 1px solid #D3D3D3;
+    border-bottom: 1px solid #D3D3D3;
+    margin-bottom: 90px;
+}
+
+.signup-input-line {
+    display: flex;
+    height: auto;
+    align-items: center;
+    border-top: 1px solid #D3D3D3;
+}
+
+.signup-title {
+    width: 200px;
+    height: 78px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ECECEC;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding-left: 30px;
+    box-sizing: border-box;
+}
+
+.signup-input-box {
+    padding: 10px 0 10px 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.signup-input {
+    width: 400px;
+    height: 34px;
+    font-size: 16px;
+    border: 1px solid #D3D3D3;;
+}
+
+.signup-guide {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.search-address, .search-email {
+    width: 80px;
+    height: 34px;
+    border: none;
+    color: #ffffff;
+    background-color: #FCBAAA;
+    font-size: 14px;
+    font-weight: 700;
+    margin-left: 30px;
+    cursor: pointer;
+}
+
+.stipulation-text-box {
+    height: 200px;
+    background-color: #ECECEC;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    margin-left: auto;
+    justify-content: flex-end
+}
+
+.stipulation {
+    margin-top: 30px;
+}
+
+
+/* 기본 체크박스 숨기기 */
+.checkbox,
+.all-agree-checkbox {
+    display: none;
+}
+
+/* 커스텀 체크박스 스타일 */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.checkbox-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    position: relative;
+}
+
+/* 커스텀 체크박스 모양 */
+.checkbox-container label::before,
+.stipulation label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* 체크박스가 체크되었을 때의 스타일 */
+.checkbox:checked + label::before,
+.all-agree-checkbox:checked + label::before {
+    background-color: #FF9A9A;
+    border-color: #FF9A9A;
+}
+
+/* 체크 마크 스타일 */
+.checkbox:checked + label::after,
+.all-agree-checkbox:checked + label::after {
+    content: '✓';
+    display: inline-block;
+    color: white;
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+}
+
+.signup-submit {
+    border: none;
+    width: 260px;
+    height: 70px;
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #FCBAAA;
+    margin: 50px auto;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+}
