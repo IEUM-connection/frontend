@@ -4,6 +4,7 @@ import MainPage from './pages/MainPage';
 import SignupPage from './pages/SignupPage';
 import MemberMap from './components/map/MemberMap';
 import MapPage from './pages/MapPage';
+import RequestPage from './pages/RequestPage';
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
           <Route path="/" element={<MainPage />}/>
           <Route path="/signup" element={<SignupPage />}/>
           <Route path="/membermap" element={<MemberMap />}/>
+          <Route path="/request" element={<RequestPage />}/>
       </Routes>
     </Router>
   );

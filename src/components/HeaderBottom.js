@@ -1,10 +1,10 @@
 import './HeaderBottom.css';
 import React from 'react';
 
-const HeaderBottom = () => {
+const HeaderBottom = ({ text }) => {
     return (
         <div className="header-bottom">
-            <div className="header-bottom-content">회원가입</div>
+            <div className="header-bottom-content">{text}</div>
         </div>
     );
 
