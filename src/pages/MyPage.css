@@ -1,0 +1,52 @@
+.MyPage-signup-wrap {
+    width: 1000px;
+    margin: 0 auto;
+    margin-top: 80px;
+}
+
+.signup-input-line-1 {
+    display: flex;
+    height: auto;
+    align-items: stretch;
+    border-top: 1px solid #D3D3D3;
+}
+
+.applicant-info-title-1 {
+    width: 162px;
+    min-width: 162px;
+    height: 78px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ECECEC;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding-left: 30px;
+    box-sizing: border-box;
+}
+
+.applicant-info-title-2 {
+    width: 162px;
+    min-width: 162px;
+    height: auto;
+    min-height: 78px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ECECEC;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding-left: 30px;
+    box-sizing: border-box;
+}
+
+.applicant-info-content-1 {
+    width: 838px;
+    height: auto;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center; 
+}

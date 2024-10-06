@@ -239,7 +239,7 @@ const SignupPage = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text="회원가입"/>
+            <HeaderBottom text={["회원가입"]}  />
             <div className="signup-logo">
                 <img src="/image/logo-text.png" alt="메인로고" />
             </div>

@@ -1,0 +1,26 @@
+.applicant-info-title-3 {
+    width: 162px;
+    min-width: 162px;
+    height: auto;
+    min-height: 78px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #FFD7CD;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding-left: 30px;
+    box-sizing: border-box;
+}
+
+.applicant-info-content-3 {
+    width: 838px;
+    height: auto;
+    min-height: 200px;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center; 
+    font-size: 16px;
+}

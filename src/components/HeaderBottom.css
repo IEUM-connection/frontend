@@ -5,7 +5,11 @@
     color: #ffffff;
     background-color: #FFD7CD;
     padding-left: 100px;
-    gap: 30px;
+    gap: 50px;
     font-size: 20px;
     font-weight: bold;
+}
+
+.header-bottom-content {
+    cursor: pointer;
 }

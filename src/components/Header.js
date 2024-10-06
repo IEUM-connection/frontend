@@ -49,9 +49,9 @@ const Header = () => {
                     <img src="/image/Ieum_logo.png" alt="메인로고" />
                 </div>
                 <div className="header-navigation" onClick={() => navigate('/request')}> 서비스 신청 </div>
-                <div className="header-navigation" onClick={() => navigate('/')}> 마이페이지 </div>
-                <div className="header-navigation" onClick={() => navigate('/')}> 고객센터 </div>
-                <div className="header-navigation" onClick={() => navigate('/')}> 관리자페이지 </div>
+                <div className="header-navigation" onClick={() => navigate('/mypage')}> 마이페이지 </div>
+                <div className="header-navigation" onClick={() => navigate('/service')}> 고객센터 </div>
+                <div className="header-navigation" onClick={() => navigate('/admin')}> 관리자페이지 </div>
             </div>
             {isLoggedIn ? (
                     <div className="user-info-container">
