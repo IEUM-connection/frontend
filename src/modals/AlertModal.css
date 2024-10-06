@@ -1,10 +1,10 @@
 .alert-modal {
     display: block;
-    position: fixed;
+    position: absolute;
     z-index: 1000;
-    top: calc(100px + 6%);
-    left: 80%;
-    transform: translateX(-50%);
+    top: 314px;
+    left: 1242px;
+    transform: translate(-50%, -50%);
     width: 300px;
     height: 500px;
     background-color: #eeeeee;

@@ -1,0 +1,11 @@
+.map-container {
+    width: 1080px;
+    height: 450px;
+    margin: 0 auto;
+    margin-top: 60px;
+}
+
+.marker-card {
+    padding: 10px 10px;
+    border: none;
+}

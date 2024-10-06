@@ -92,9 +92,14 @@
 
 
 /* 기본 체크박스 숨기기 */
-.checkbox,
+.checkbox {
+    visibility: hidden;
+    position: absolute;
+}
+
 .all-agree-checkbox {
-    display: none;
+    visibility: hidden;
+    position: absolute;
 }
 
 /* 커스텀 체크박스 스타일 */
@@ -102,6 +107,7 @@
     display: flex;
     align-items: center;
     margin: 10px 0;
+    position: relative;
 }
 
 .checkbox-container label {
@@ -113,8 +119,7 @@
 }
 
 /* 커스텀 체크박스 모양 */
-.checkbox-container label::before,
-.stipulation label::before {
+.checkbox-container label::before {
     content: '';
     display: inline-block;
     width: 20px;
@@ -127,15 +132,18 @@
 }
 
 /* 체크박스가 체크되었을 때의 스타일 */
-.checkbox:checked + label::before,
-.all-agree-checkbox:checked + label::before {
+.checkbox-container input[type="checkbox"]:checked + label::before {
+    background-color: #FF9A9A;
+    border-color: #FF9A9A;
+}
+
+.all-agree-checkbox input::before {
     background-color: #FF9A9A;
     border-color: #FF9A9A;
 }
 
 /* 체크 마크 스타일 */
-.checkbox:checked + label::after,
-.all-agree-checkbox:checked + label::after {
+.checkbox-container input[type="checkbox"]:checked + label::after {
     content: '✓';
     display: inline-block;
     color: white;
@@ -144,6 +152,11 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 14px;
+}
+
+.all-agree-checkbox:checked + label::before {
+    background-color: #FF9A9A;
+    border-color: #FF9A9A;
 }
 
 .signup-submit {

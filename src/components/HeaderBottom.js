@@ -1,13 +1,16 @@
 import './HeaderBottom.css';
 import React from 'react';
 
-const HeaderBottom = ({ text }) => {
+const HeaderBottom = ({ text, onNavigate }) => {
     return (
         <div className="header-bottom">
-            <div className="header-bottom-content">{text}</div>
+            {text.map((item, index) => (
+                <div key={index} className="header-bottom-content" onClick={() => onNavigate(item)}>
+                    {item}
+                </div>
+            ))}
         </div>
     );
-
 };
 
 export default HeaderBottom;

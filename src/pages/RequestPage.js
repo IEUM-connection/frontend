@@ -3,6 +3,7 @@ import './RequestPage.css';
 import Header from '../components/Header';
 import HeaderBottom from '../components/HeaderBottom';
 import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 const Checkbox = ({ id, title, status, checked, onChange }) => (
     <div className="checkbox-container">
@@ -21,29 +22,11 @@ const Checkbox = ({ id, title, status, checked, onChange }) => (
 
 const RequestContainer = () => {
     const data = [
-        {
-            id: 0,
-            title: '멤버십 이용약관 동의',
-            status: '(필수)',
-        },
-        {
-            id: 1,
-            title: '개인정보 수집 및 이용 동의',
-            status: '(필수)',
-        },
-        {
-            id: 2,
-            title: 'SMS 수신 동의',
-            status: '(선택)',
-        },
-        {
-            id: 3,
-            title: '신청',
-        },
-        {
-            id: 4,
-            title: '미신청',
-        }
+        { id: 0, title: '멤버십 이용약관 동의', status: '(필수)' },
+        { id: 1, title: '개인정보 수집 및 이용 동의', status: '(필수)' },
+        { id: 2, title: 'SMS 수신 동의', status: '(선택)' },
+        { id: 3, title: '신청' },
+        { id: 4, title: '미신청' }
     ];
 
     const [checkItems, setCheckItems] = useState([]);
@@ -64,24 +47,38 @@ const RequestContainer = () => {
     const allChecked = (checked) => {
         if (checked) {
             const itemList = data.filter(item => item.id <= 2).map(item => item.id);
-            setCheckItems(itemList);
+            setCheckItems([...checkItems.filter(id => id > 2), ...itemList]);
         } else {
             setCheckItems(checkItems.filter(id => id > 2));
         }
     };
+    
 
-    const oninputPhone = (target) => { // 전화번호 형식으로 변경해주는 함수
-        target.value = target.value
+    const onInputPhone = (e) => { // 전화번호 형식으로 변경해주는 함수
+        e.target.value = e.target.value
             .replace(/[^0-9]/g, '')
             .replace(/(^02.{0}|^01.{1}|[0-9]{3,4})([0-9]{3,4})([0-9]{4})/g, "$1-$2-$3");
     };
 
     const openDaumPostcode = () => {
+        /* global kakao */ // 이 주석을 추가하여 ESLint에게 kakao가 전역 객체임을 알림
         new window.daum.Postcode({
             oncomplete: (data) => {
                 let fullAddress = data.address;
                 let extraAddress = '';
-
+    
+                console.log('도로명주소 : ' + data.roadAddress);
+                console.log('지번주소 : ' + data.jibunAddress);
+                console.log('우편번호 : ' + data.zonecode);
+    
+                const geocoder = new kakao.maps.services.Geocoder();
+                geocoder.addressSearch(data.roadAddress, (result, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        console.log('위도 : ' + result[0].y);
+                        console.log('경도 : ' + result[0].x);
+                    }
+                });
+    
                 // 주소에 추가 정보가 있는 경우 처리
                 if (data.addressType === 'R') {
                     if (data.bname !== '') {
@@ -92,7 +89,7 @@ const RequestContainer = () => {
                     }
                     fullAddress += (extraAddress !== '' ? ' (' + extraAddress + ')' : '');
                 }
-
+    
                 // 우편번호와 주소를 결합하여 하나의 문자열로 설정
                 const combinedAddress = `(${data.zonecode}) ${fullAddress}`;
                 setAddress(combinedAddress); // 주소 상태 업데이트
@@ -279,28 +276,36 @@ const RequestContainer = () => {
             
             {/* 전체 동의 체크박스 */}
             <div className="stipulation">
-                <div className="checkbox-container ">
-                    <label>
-                        <input
-                            type="checkbox"
-                            className="all-agree-checkbox"
-                            onChange={(e) => allChecked(e.target.checked)}
-                            checked={checkItems.length === data.length}
-                        />
-                        약관에 모두 동의합니다.
-                    </label>
-                </div>
+            <div className="checkbox-container">
+                <label>
+                    <input
+                        type="checkbox"
+                        className="all-agree-checkbox"
+                        onChange={(e) => allChecked(e.target.checked)}
+                        checked={[0, 1, 2].every(id => checkItems.includes(id))}
+                    />
+                    약관에 모두 동의합니다.
+                </label>
             </div>
+        </div>
             <button className="signup-submit">회원가입</button>
         </div>
     );
 };
 
 const RequestPage = () => {
+    const navigate = useNavigate();
+
+    const handleNavigation = (item) => {
+        if (item === "변경이력조회") {
+            navigate('/request'); // 원하는 경로로 수정하세요
+        }
+    };
+
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text="서비스 신청"/>
+            <HeaderBottom text={["서비스신청"]} onNavigate={handleNavigation}/>
             <div className="signup-logo">
                 <img src="/image/logo-text.png" alt="메인로고" />
             </div>
