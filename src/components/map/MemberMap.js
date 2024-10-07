@@ -108,8 +108,8 @@ const MemberMap = ( { markers } ) => {
             content={
               <div className="marker-card" style={{ color: "#000" }}>
                 <div>이름: {marker.name}</div>
-                <div>전력 사용량: {marker.powerUsage}</div>
-                <div>미사용 시간: {marker.phoneInactiveDuration}</div>
+                <div>전력 사용량: {marker.powerUsage} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
+                <div>미사용 시간: {marker.phoneInactiveDuration} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
               </div>
             }
           />

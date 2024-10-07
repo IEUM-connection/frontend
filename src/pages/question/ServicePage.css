@@ -16,18 +16,22 @@
 
 .search-button {
     background-color: #FCBAAA;
-    margin-left: 10px;
-    width: 54px;
+    margin-left: 20px;
+    width: 100px;
     height: 54px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-size: 20px;
+    font-weight: 500;
+    color: #ffffff;
 }
 
 .search-button img{ 
     width: 30px;
     height: 30px;
+    margin-left: 6px;
 }
 
 
@@ -49,13 +53,24 @@
     cursor: pointer;
 }
 
-.header-title {
-    width: 680px;
-    text-align:center;
+.service-header {
+    width: 240px;
+    text-align: center;
 }
 
-.content-title {
-    width: 680px;
+.service-title {
+    width: 580px;
+    text-align: center;
     position: relative;
-    left: 80px;
+}
+
+.service-date {
+    width: 370px;
+    text-align: center;
+}
+
+.service-title1 {
+    width: 580px;
+    position: relative;
+    text-align: center;
 }

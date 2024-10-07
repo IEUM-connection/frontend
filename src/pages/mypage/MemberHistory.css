@@ -41,23 +41,35 @@
 }
 
 .header-number {
-    width: 200px;
+    width: 170px;
+    text-align: center;
+}
+
+.header-title {
+    width: 680px;
+    position: relative;
+    text-align: center;
+}
+
+.content-title {
+    width: 690px;
+    position: relative;
     text-align: center;
 }
 
 .header-history {
-    width: 500px;
+    width: 390px;
     text-align: center;
 }
 
 .header-type {
-    width: 200px;
+    width: 260px;
     text-align: center;
 
 }
 
 .header-date {
-    width: 200px;
+    width: 260px;
     text-align: center;
 }
 

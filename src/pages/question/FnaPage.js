@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './MyQuestionDetail.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const ShowInfo = () => {
     const navigate=useNavigate();
@@ -18,25 +17,18 @@ const ShowInfo = () => {
     return (
         <div className="MyPage-signup-wrap">
             <div className="applicant-info">
-                <h3>문의하기</h3>
+                <h3>자주묻는질문</h3>
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <input className="post-question-title-input" type="text"></input>
+                        <div className="post-question-title-input" type="text"></div>
                     </div> 
-                </div>
-                <div className='post-question-line'>
-                    <div className="post-question-title">문의시간</div>
-                    <div className="post-question-content">{currentTime}</div>
-                    <div className="post-question-title">문의상태</div>
-                    <div className="post-question-content">-</div>
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <textarea className="post-question-content-1"></textarea>
+                    <div className="post-question-content-1"></div>
                 </div>
             </div>
-            <button className="signup-submit" onClick={() => navigate('/request/my')}>문의등록</button>
         </div>
     )
 };

@@ -1,45 +1,44 @@
 import React, { useState } from 'react';
-import './ServicePage.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import './MyQuestion.css';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
-const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
+const MyQuestionInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        number: i + 1,
-        history: `자주묻는질문 ${i + 1}`,
-        date: `2024.10.${(i % 30) + 1}`,
+        questionId: i + 1,
+        questionTitle: `이런거 저런거 궁금한데 질문입니다. ${i + 1}`,
+        status: i % 2 === 0 ? '답변완료' : '답변대기중',
+        questionDate: `2024.10.${(i % 30) + 1}`,
+        questionContent: `이런거 저런거 궁금한데 질문입니다. 도대체 여기는 뭐하는 곳이죠?.`
     })).reverse();
 
-    const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const navigate = useNavigate();
 
     return (
         <div className="memberHistory">
-            <div className="search-container">
-                <input className="search-bar" placeholder='검색'></input>
-                <div className="search-button">
-                    <img src="/image/searchIcon.png" alt="메인로고" />
-                </div>
-            </div>
-            <div className='order-question-container'>
-                <div className="history-view-count">조회결과 {totalItems} 건</div>
-                <button className="order-question" onClick={() => navigate('/question/post')}>문의하기</button>
-            </div>
+            <div className="history-title">내 질문 조회</div>
+            <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
                     <div className="header-number"> 번호 </div>
-                    <div className="header-title"> 제목 </div>
-                    <div className="header-date"> 등록날짜 </div>
+                    <div className="header-history"> 문의 제목 </div>
+                    <div className="header-type"> 문의 상태 </div>
+                    <div className="header-date"> 문의 날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/fna-detail')}>
-                        <div className="header-number"> {item.number} </div> 
-                        <div className="content-title"> {item.history} </div>
-                        <div className="header-date"> {item.date} </div>
+                    <div className="memberHistory-content" 
+                        key={item.questionId} 
+                        onClick={() => navigate('/myquestion/detail', { state: { item } })}
+                    >
+                        <div className="header-number"> {item.questionId} </div>
+                        <div className="header-history"> {item.questionTitle} </div>
+                        <div className="header-type"> {item.status} </div>
+                        <div className="header-date"> {item.questionDate} </div>
                     </div>
                 ))}
             </div>
@@ -87,7 +86,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const ServicePage = () => {
+const MyQuestion = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
     const totalItems = 11; // Example total items
@@ -113,11 +112,11 @@ const ServicePage = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <MyQuestionInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>
     );
 };
 
-export default ServicePage;
+export default MyQuestion;

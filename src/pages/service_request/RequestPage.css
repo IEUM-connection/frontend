@@ -1,0 +1,112 @@
+.applicant-info-title {
+    width: 180px;
+    height: auto;
+    min-height: 78px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ECECEC;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 30px;
+    box-sizing: border-box;
+}
+
+.applicant-info-content {
+    width: 320px;
+    padding: 20px 10px;
+    text-indent: 20px; 
+    height: auto;
+}
+
+.applicant-info-title-Request {
+    width: 180px;
+    height: auto;
+    min-height: 81px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ECECEC;
+    color: #575757;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px 30px;
+    box-sizing: border-box;
+}
+
+.applicant-info-content-Request {
+    width: 350px;
+    padding: 20px 20px;
+    /* text-indent: 20px;  */
+    height: auto;
+}
+
+.signup-input-checkbox {
+    height: 15px;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+}
+
+.signup-guide-milk {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.custom-dropdown2-selected .dropdown-arrow {
+    margin-left: 310px;
+}
+
+.custom-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.custom-dropdown2-selected {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    margin-left: 10px;
+    width: 384px;
+    padding-left: 10px;
+}
+
+.custom-dropdown2-options {
+    position: absolute;
+    top: 98%;
+    left: 0;
+    right: 1;
+    width: 394px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-left: 30px;
+}
+
+.custom-dropdown2-options .custom-option {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.file-name {
+    width: 400px;
+    height: 34px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.file-name-box {
+    padding: 10px 0 10px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

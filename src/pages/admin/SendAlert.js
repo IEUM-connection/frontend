@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './SendAlert.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const CustomDropdown = ({ options, selected, onSelect, className }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -136,6 +136,7 @@ const AdminAlert = () => {
                         className="post-question-content-1" 
                         value={alertContent} 
                         onChange={(e) => setAlertContent(e.target.value)}
+                        placeholder='내용을 입력해주세요.'
                     ></textarea>
                 </div>
             </div>

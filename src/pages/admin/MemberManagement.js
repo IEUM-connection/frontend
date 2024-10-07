@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import './MemberManagement.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
-import MemberMap from '../components/map/MemberMap';
+import HeaderBottom from '../../components/HeaderBottom';
+import MemberMap from '../../components/map/MemberMap';
 
 const MemberManage = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
         name: `고세동`,
-        powerUsage: `3khw (마지막 체크시간 24.10.01. 23:30:00)`,
-        phoneInactiveDuration: `20시간 (마지막 체크시간 24.10.01. 24:00:00)`,
+        powerUsage: `3khw /`,
+        phoneInactiveDuration: `20시간 /`,
     })).reverse();
 
     const navigate = useNavigate();
@@ -22,22 +22,22 @@ const MemberManage = ({ currentPage, itemsPerPage, totalItems }) => {
         <div className="memberHistory">
             <div className="search-container">
                 <input className="search-bar" placeholder='검색'></input>
-                <div className="search-button">
+                <div className="search-button"> 검색
                     <img src="/image/searchIcon.png" alt="메인로고" />
                 </div>
             </div>
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
-                    <div className="header-number"> 대상자 이름 </div>
-                    <div className="header-title"> 1일 전력 사용량 </div>
-                    <div className="header-date"> 휴대폰 미사용 시간 </div>
+                    <div className="management-header-name"> 대상자 이름 </div>
+                    <div className="management-header-power"> 1일 전력 사용량 </div>
+                    <div className="management-header-time"> 휴대폰 미사용 시간</div>
                 </div>
                 {paginatedData.map((item) => (
                     <div className="memberHistory-content" key={item.number} onClick={() => navigate('/admin/memberInfo')}>
-                        <div className="header-number"> {item.name} </div> 
-                        <div className="content-title"> {item.powerUsage} </div>
-                        <div className="header-date"> {item.phoneInactiveDuration} </div>
+                        <div className="management-header-name"> {item.name} </div> 
+                        <div className="management-header-power"> {item.powerUsage} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
+                        <div className="management-header-time"> {item.phoneInactiveDuration} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
                     </div>
                 ))}
             </div>
@@ -121,8 +121,9 @@ const MemberManagement = () => {
 
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
         name: `고세동`,
-        powerUsage: `3kWh (마지막 체크시간 24.10.01. 23:30:00)`,
-        phoneInactiveDuration: `20시간 (마지막 체크시간 24.10.01. 24:00:00)`,
+        powerUsage: `3kWh`,
+        phoneInactiveDuration: `20시간`,
+        checkTime: `(마지막 체크시간 24.10.01. 23:30:00)`,
         latlng: { lat: 37.499653752945 + i * 0.001, lng: 127.03053487955 + i * 0.001 }, // 임의의 위치 데이터
     })).reverse();
 

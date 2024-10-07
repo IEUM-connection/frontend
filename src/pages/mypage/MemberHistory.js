@@ -1,44 +1,39 @@
 import React, { useState } from 'react';
-import './MyQuestion.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import './MemberHistory.css';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
-const MyQuestionInfo = ({ currentPage, itemsPerPage, totalItems }) => {
+const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        questionId: i + 1,
-        questionTitle: `이런거 저런거 궁금한데 질문입니다. ${i + 1}`,
-        status: i % 2 === 0 ? '답변완료' : '답변대기중',
-        questionDate: `2024.10.${(i % 30) + 1}`,
-        questionContent: `이런거 저런거 궁금한데 질문입니다. 도대체 여기는 뭐하는 곳이죠?.`
+        number: i + 1,
+        history: `대상자 특이사항 변경 ${i + 1}`,
+        status: i % 2 === 0 ? '승인완료' : '승인대기중',
+        date: `2024.10.${(i % 30) + 1}`,
     })).reverse();
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
-    const navigate = useNavigate();
 
     return (
         <div className="memberHistory">
-            <div className="history-title">내 질문 조회</div>
+            <div className="history-title">변경 이력 조회</div>
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
                     <div className="header-number"> 번호 </div>
-                    <div className="header-history"> 문의 제목 </div>
-                    <div className="header-type"> 문의 상태 </div>
-                    <div className="header-date"> 문의 날짜 </div>
+                    <div className="header-history"> 변경이력 </div>
+                    <div className="header-type"> 상태 </div>
+                    <div className="header-date"> 변경날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
-                    <div className="memberHistory-content" 
-                        key={item.questionId} 
-                        onClick={() => navigate('/myquestion/detail', { state: { item } })}
-                    >
-                        <div className="header-number"> {item.questionId} </div>
-                        <div className="header-history"> {item.questionTitle} </div>
+                    <div className="memberHistory-content" key={item.number}>
+                        <div className="header-number"> {item.number} </div>
+                        <div className="header-history"> {item.history} </div>
                         <div className="header-type"> {item.status} </div>
-                        <div className="header-date"> {item.questionDate} </div>
+                        <div className="header-date"> {item.date} </div>
                     </div>
                 ))}
             </div>
@@ -86,19 +81,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const MyQuestion = () => {
+const MemberHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 11; // Example total items
+    const totalItems = 47; // Example total items
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const handleNavigation = (item) => {
-        if (item === "내질문조회") {
-            navigate('/myquestion');
-            return;
-        } else if (item === "자주묻는질문") {
-            navigate('/service');
+        if (item === "마이페이지") {
+            navigate('/mypage');
         }
     };
 
@@ -111,12 +103,12 @@ const MyQuestion = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            <MyQuestionInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <HeaderBottom text={["마이페이지", "변경이력조회"]} onNavigate={handleNavigation} />
+            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>
     );
 };
 
-export default MyQuestion;
+export default MemberHistory;

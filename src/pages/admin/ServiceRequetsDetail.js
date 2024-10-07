@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './ServiceRequestDetail.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate, useLocation } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const ShowInfo = ( { } ) => {
     const navigate=useNavigate();

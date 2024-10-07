@@ -1,9 +1,9 @@
 import React from 'react';
 import './MemberInfo.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const ShowInfo = () => {
     const navigate = useNavigate();
@@ -52,12 +52,12 @@ const ShowInfo = () => {
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">최근 1일 < br/>전력 사용량</div>
-                        <div className="applicant-info-content">4khw(마지막 체크 시간 24.09.12. 23:00)</div>
+                        <div className="applicant-info-content">4khw<div style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</div></div>
                         <div className="applicant-info-title">휴대폰<br />미사용 시간</div>
-                        <div className="applicant-info-content">7시간 (마지막 체크 시간 24.09.12. 23:00) </div>
+                        <div className="applicant-info-content">7시간 <div style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</div></div>
                     </div>
                     <div className='signup-input-line-1'>
-                        <div className="applicant-info-title-3">관리자 기록사항</div>
+                    <div className="applicant-info-title-3">관리자 기록사항<div style={{ fontSize: '13px', fontWeight: '500' }}><br />*관리자만 볼 수 있습니다.</div></div>
                         <textarea className="applicant-info-content-3">전화를 잘 받지 않으십니다. 옥상 텃밭에 주로 계심</textarea>
                     </div>
                 </div>

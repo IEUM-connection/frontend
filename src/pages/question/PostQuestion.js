@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './PostQuestion.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const PostQuestion = () => {
     const navigate=useNavigate();
@@ -22,7 +22,7 @@ const PostQuestion = () => {
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <input className="post-question-title-input" type="text"></input>
+                        <input className="post-question-title-input" type="text" placeholder='내용을 입력해주세요.'></input>
                     </div> 
                 </div>
                 <div className='post-question-line'>
@@ -33,7 +33,7 @@ const PostQuestion = () => {
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <textarea className="post-question-content-1"></textarea>
+                    <textarea className="post-question-content-1" placeholder='내용을 입력해주세요.'></textarea>
                 </div>
             </div>
             <button className="signup-submit" onClick={() => navigate('/request/my')}>문의등록</button>
