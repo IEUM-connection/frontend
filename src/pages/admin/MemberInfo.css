@@ -1,17 +1,18 @@
 .applicant-info-title-3 {
-    width: 162px;
+    width: 188px;
     min-width: 162px;
     height: auto;
     min-height: 78px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     background-color: #FFD7CD;
     color: #575757;
     font-size: 16px;
     font-weight: 500;
-    padding-left: 30px;
+    /* padding-left: 30px; */
     box-sizing: border-box;
+    flex-direction: column;
 }
 
 .applicant-info-content-3 {

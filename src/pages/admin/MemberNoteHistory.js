@@ -1,40 +1,38 @@
 import React, { useState } from 'react';
-import './AdminPage.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import './MemberNoteHistory.css';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
-const ServiceApproval = ({ currentPage, itemsPerPage, totalItems }) => {
+const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        serviceId: i + 1,
+        number: i + 1,
         name: `고세동`,
-        address: `테헤란로 7길 7`,
-        detailAddress: `5층 7실습실`,
-        guardianId: `신청자 : 윤영하`,
+        history: `대상자 특이사항 변경`,
         date: `2024.10.${(i % 30) + 1}`,
     })).reverse();
 
-    const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="memberHistory">
-            <h3>서비스 신청 내역</h3>
+            <div className="history-title">변경 이력 조회</div>
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
                     <div className="header-number"> 번호 </div>
-                    <div className="header-title"> 신청 정보 </div>
-                    <div className="header-date"> 신청 날짜 </div>
+                    <div className='header-type'> 이름 </div>
+                    <div className="header-history"> 변경 내역 </div>
+                    <div className="header-date"> 변경날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.serviceId} 
-                        onClick={() => navigate('/admin/serviceRequest', { state: { item } })}>
-                        <div className="header-number"> {item.serviceId} </div> 
-                        <div className="content-title"> {item.name} - {item.address} {item.detailAddress} ({item.guardianId}) </div>
+                    <div className="memberHistory-content" key={item.number}>
+                        <div className="header-number"> {item.number} </div>
+                        <div className="header-type"> {item.name} </div>
+                        <div className="header-history"> {item.history} </div>
                         <div className="header-date"> {item.date} </div>
                     </div>
                 ))}
@@ -83,10 +81,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const AdminPage = () => {
+const MemberNoteHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 11; // Example total items
+    const totalItems = 47; // Example total items
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -121,11 +119,11 @@ const AdminPage = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
-            <ServiceApproval currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>
     );
 };
 
-export default AdminPage;
+export default MemberNoteHistory;

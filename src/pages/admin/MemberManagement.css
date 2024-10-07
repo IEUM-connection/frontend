@@ -1,0 +1,15 @@
+.management-header-name {
+    width: 200px;
+    text-align: center;
+}
+
+.management-header-power {
+    width: 440px;
+    position: relative;
+    text-align: center;
+}
+
+.management-header-time {
+    width: 440px;
+    text-align: center;
+}

@@ -1,39 +1,45 @@
 import React, { useState } from 'react';
-import './MemberNoteHistory.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import './ServicePage.css';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
-import HeaderBottom from '../components/HeaderBottom';
+import HeaderBottom from '../../components/HeaderBottom';
 
 const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
         number: i + 1,
-        name: `고세동`,
-        history: `대상자 특이사항 변경`,
+        history: `자주묻는질문 ${i + 1}`,
         date: `2024.10.${(i % 30) + 1}`,
     })).reverse();
 
+    const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="memberHistory">
-            <div className="history-title">변경 이력 조회</div>
-            <div className="history-view-count">조회결과 {totalItems} 건</div>
+            <div className="search-container">
+                <input className="search-bar" placeholder='검색'></input>
+                <div className="search-button"> 검색
+                    <img src="/image/searchIcon.png" alt="메인로고" />
+                </div>
+            </div>
+            <div className='order-question-container'>
+                <div className="history-view-count">조회결과 {totalItems} 건</div>
+                <button className="order-question" onClick={() => navigate('/question/post')}>문의하기</button>
+            </div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
-                    <div className="header-number"> 번호 </div>
-                    <div className='header-number'> 이름 </div>
-                    <div className="header-history"> 변경 내역 </div>
-                    <div className="header-date"> 변경날짜 </div>
+                    <div className="service-header"> 번호 </div>
+                    <div className="service-title1"> 제목 </div>
+                    <div className="service-date"> 등록날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number}>
-                        <div className="header-number"> {item.number} </div>
-                        <div className="header-number"> {item.name} </div>
-                        <div className="header-history"> {item.history} </div>
-                        <div className="header-date"> {item.date} </div>
+                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/fna-detail')}>
+                        <div className="service-header"> {item.number} </div> 
+                        <div className="service-title"> {item.history} </div>
+                        <div className="service-date"> {item.date} </div>
                     </div>
                 ))}
             </div>
@@ -81,31 +87,19 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const MemberNoteHistory = () => {
+const ServicePage = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 47; // Example total items
+    const totalItems = 11; // Example total items
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const handleNavigation = (item) => {
-        if (item === "관리자페이지") {
-            navigate('/admin');
+        if (item === "내질문조회") {
+            navigate('/myquestion');
             return;
-        } else if (item === "서비스승인") {
-            navigate('/admin');
-            return;
-        } else if (item === "알림보내기") {
-            navigate('/admin/sendAlert');
-            return;
-        } else if (item === "문의내역") {
-            navigate('/admin/question');
-            return;
-        } else if (item === "특이사항변경") {
-            navigate('/admin/memberNote');
-            return;
-        } else if (item === "사용자관리") {
-            navigate('/admin/member');
+        } else if (item === "자주묻는질문") {
+            navigate('/service');
         }
     };
 
@@ -118,7 +112,7 @@ const MemberNoteHistory = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
+            <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
             <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
@@ -126,4 +120,4 @@ const MemberNoteHistory = () => {
     );
 };
 
-export default MemberNoteHistory;
+export default ServicePage;

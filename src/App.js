@@ -1,24 +1,24 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from './pages/MainPage';
-import SignupPage from './pages/SignupPage';
+import SignupPage from './pages/login/SignupPage';
 import MemberMap from './components/map/MemberMap';
-import RequestPage from './pages/RequestPage';
-import MyPage from './pages/MyPage';
-import ServicePage from './pages/ServicePage';
-import AdminPage from './pages/AdminPage';
-import MemberHistory from './pages/MemberHistory';
-import PostQuestionPage from './pages/PostQuestion';
-import MyQuestion from './pages/MyQuestion';
-import MyQuestionDetail from './pages/MyQuestionDetail';
-import FnaPage from './pages/FnaPage';
-import ServiceRequestDetail from './pages/ServiceRequetsDetail';
-import SendAlert from './pages/SendAlert';
-import QuestionBoard from './pages/QuestionBoard';
-import QuestionInfo from './pages/QuestionInfo';
-import MemberManagement from './pages/MemberManagement';
-import MemberInfo from './pages/MemberInfo';
-import MemberNoteHistory from './pages/MemberNoteHistory';
+import RequestPage from './pages/service_request/RequestPage';
+import MyPage from './pages/mypage/MyPage';
+import ServicePage from './pages/question/ServicePage';
+import AdminPage from './pages/admin/AdminPage';
+import MemberHistory from './pages/mypage/MemberHistory';
+import PostQuestionPage from './pages/question/PostQuestion';
+import MyQuestion from './pages/question/MyQuestion';
+import MyQuestionDetail from './pages/question/MyQuestionDetail';
+import FnaPage from './pages/question/FnaPage';
+import ServiceRequestDetail from './pages/admin/ServiceRequetsDetail';
+import SendAlert from './pages/admin/SendAlert';
+import QuestionBoard from './pages/admin/QuestionBoard';
+import QuestionInfo from './pages/admin/QuestionInfo';
+import MemberManagement from './pages/admin/MemberManagement';
+import MemberInfo from './pages/admin/MemberInfo';
+import MemberNoteHistory from './pages/admin/MemberNoteHistory';
 
 const App = () => {
   return (
