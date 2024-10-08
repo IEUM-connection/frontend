@@ -3,6 +3,7 @@ import './RequestPage.css';
 import Header from '../../components/Header';
 import HeaderBottom from '../../components/HeaderBottom';
 import Footer from '../../components/Footer';
+import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
 
 const CustomDropdown = ({ options, selected, onSelect, className }) => {
@@ -486,7 +487,9 @@ const RequestContainer = () => {
 
             <div className="stipulation">
                 <h3>이용약관</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <MembershipTerms />
+                </div>
                 <Checkbox
                     id={0}
                     title="서비스 이용약관 동의"
@@ -497,7 +500,9 @@ const RequestContainer = () => {
             </div>
             <div className="stipulation">
                 <h3>개인정보 수집 및 이용</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <PrivacyPolicy />
+                </div>
                 <Checkbox
                     id={1}
                     title="개인정보 수집 및 이용 동의"
@@ -508,7 +513,9 @@ const RequestContainer = () => {
             </div>
             <div className="stipulation">
                 <h3>SMS 수신 동의</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <SmsAgreement />
+                </div>
                 <Checkbox
                     id={2}
                     title="SMS 수신 동의"
