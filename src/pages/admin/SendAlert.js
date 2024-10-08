@@ -41,10 +41,10 @@ const CustomDropdown = ({ options, selected, onSelect, className }) => {
 const AdminAlert = () => {
     const navigate=useNavigate();
     const [currentTime, setCurrentTime] = useState('');
-    const [recipient, setRecipient] = useState('전체');
-    const [alertType, setAlertType] = useState('공지');
+    const [recipient, setRecipient] = useState('전체 ▼');
+    const [alertType, setAlertType] = useState('공지 ▼');
     const [scheduledTime, setScheduledTime] = useState('');
-    const [scheduleOption, setScheduleOption] = useState('즉시발송');
+    const [scheduleOption, setScheduleOption] = useState('즉시발송 ▼');
     const [alertContent, setAlertContent] = useState('');
 
 

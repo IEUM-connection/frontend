@@ -5,6 +5,7 @@ import HeaderBottom from '../../components/HeaderBottom';
 import Footer from '../../components/Footer';
 import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'
 
 const CustomDropdown = ({ options, selected, onSelect, className }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +99,7 @@ const CustomFileInput = ({ onFileChange }) => {
                 type="file"
                 onChange={handleFileChange}
                 className="file-input"
-                accept=".jpg, .jpeg, .png, .pdf"
+                accept=".jpg, .jpeg, .png, .pdf, .hwp"
             />
         </div>
     );
@@ -147,6 +148,7 @@ const RequestContainer = () => {
     const [isDropdownVisible, setIsDropdownVisible] = useState(true); 
     const [file, setFile] = useState(null);
     const fileInputRef = useRef(null);
+    const navigate = useNavigate();
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -293,6 +295,60 @@ const RequestContainer = () => {
                 setAddress(combinedAddress); // 주소 상태 업데이트
             }
         }).open();
+    };
+
+    // 필수 항목들에 대한 유효성 검증
+    const validateForm = () => {
+        if (!name) {
+            setNameError("이름을 입력해주세요.");
+            return false;
+        }
+        if (!phoneNumber) {
+            setPhoneNumberError("휴대폰 번호를 입력해주세요.");
+            return false;
+        }
+        if (!age) {
+            setAgeError("대상자 나이를 입력해주세요.");
+            return false;
+        }
+        if (!address) {
+            alert("주소를 입력해주세요.");
+            return false;
+        }
+        if (![0, 1, 2].every(id => checkItems.includes(id))) {
+            alert("약관에 모두 동의해주세요.");
+            return false;
+        }
+        return true;
+    };
+
+    // 서비스 신청 버튼
+    const handleRequestSubmit = async () => {
+        if (validateForm()) {
+            try {
+                const response = await axios.post(
+                    process.env.REACT_APP_apiHome + "members", 
+                    { 
+                        "name": name,
+                        "phone": phoneNumber,
+                        "tel": homeNumber,
+                        "address": address,
+                        "detailAddress": "",
+                        "postalCode": "",
+                        "age": age,
+                        "relationship": relationship,
+                        "documentAttachment": file,
+                        "milkDeliveryRequest": "",
+                        "adminNote": "",
+                });
+
+                // 성공 시 알림 및 메인 페이지로 이동
+                alert("서비스 신청이 완료되었습니다.");
+                navigate('/');
+            } catch (error) {
+                alert("서비스 신청 중 오류가 발생했습니다.");
+            }
+        }
     };
 
     return (
@@ -442,7 +498,7 @@ const RequestContainer = () => {
                             ref={fileInputRef}
                             style={{ display: 'none' }}
                             onChange={handleFileChange}
-                            accept=".jpg, .jpeg, .png, .pdf"
+                            accept=".jpg, .jpeg, .png, .pdf, .hwp"
                         />
                     </div>
                     <button className="search-email" onClick={handleFileUploadClick}>첨부</button>
@@ -532,14 +588,21 @@ const RequestContainer = () => {
                     <input
                         type="checkbox"
                         className="all-agree-checkbox"
-                        onChange={(e) => allChecked(e.target.checked)}
+                        onChange={(e) => {
+                            const allChecked = e.target.checked;
+                            if (allChecked) {
+                                setCheckItems([0, 1, 2]);
+                            } else {
+                                setCheckItems([]);
+                            }
+                        }}
                         checked={[0, 1, 2].every(id => checkItems.includes(id))}
                     />
                     약관에 모두 동의합니다.
                 </label>
             </div>
         </div>
-            <button className="signup-submit">서비스 신청</button>
+            <button className="signup-submit"  onClick={handleRequestSubmit}>서비스 신청</button>
         </div>
     );
 };

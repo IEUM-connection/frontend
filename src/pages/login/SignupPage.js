@@ -41,6 +41,7 @@ const SignupContainer = () => {
         }
     ];
 
+    const navigate = useNavigate();
     const [checkItems, setCheckItems] = useState([]);
     const [address, setAddress] = useState(''); // 주소 api 사용을 위해서 상태 추가
     const [name, setName] = useState('');
@@ -238,10 +239,19 @@ const SignupContainer = () => {
         }).open();
     };
 
+    const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
+
     // 회원가입
     const handleJoinButton = async () => {
-            if (!email) {
-                alert('이메일을 입력하세요.');
+            if (!email || emailError || !password || password !== confirmPassword || !phoneNumber || !address) {
+                alert('모든 항목을 올바르게 입력해주세요.');
+                return;
+            }
+            
+            const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
+            
+            if (!hasAgreedToAllRequiredTerms) {
+                alert('필수 약관에 모두 동의해 주세요.');
                 return;
             }
     
@@ -260,13 +270,15 @@ const SignupContainer = () => {
                     setEmailValid(false);
                     alert('이미 사용 중인 이메일입니다.');
                 } else {
-                    setEmailValid(true);
-                    alert('사용 가능한 이메일입니다.');
+                    // 회원가입 완료 후 알림창과 페이지 이동
+                    alert('회원가입이 완료되었습니다.');
+                    navigate('/');  // 메인 페이지로 이동
                 }
             } catch (error) {
-                alert(error);
+                alert('회원가입 중 오류가 발생했습니다.');
             }
         };
+    
 
     return (
         <div className="signup-wrap">
