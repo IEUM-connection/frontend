@@ -3,6 +3,7 @@ import './SignupPage.css';
 import Header from '../../components/Header';
 import HeaderBottom from '../../components/HeaderBottom';
 import Footer from '../../components/Footer';
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 
 const Checkbox = ({ id, title, status, checked, onChange }) => (
@@ -236,6 +237,36 @@ const SignupContainer = () => {
         }).open();
     };
 
+    // 회원가입
+    const handleJoinButton = async () => {
+            if (!email) {
+                alert('이메일을 입력하세요.');
+                return;
+            }
+    
+            try {
+                const response = await axios.post(process.env.REACT_APP_apiHome + "guardians", { 
+                    "email": email,
+                    "password": password,
+                    "name": name,
+                    "tel": phoneNumber,
+                    "phone": phoneNumber,
+                    "address": address,
+                    "detailedAddress": "",
+                    "postalCode": ""
+                });
+                if (response.data.exists) {
+                    setEmailValid(false);
+                    alert('이미 사용 중인 이메일입니다.');
+                } else {
+                    setEmailValid(true);
+                    alert('사용 가능한 이메일입니다.');
+                }
+            } catch (error) {
+                alert(error);
+            }
+        };
+
     return (
         <div className="signup-wrap">
             <h3>회원가입</h3>
@@ -416,7 +447,7 @@ const SignupContainer = () => {
                     </label>
                 </div>
             </div>
-            <button className="signup-submit">회원가입</button>
+            <button className="signup-submit" onClick={handleJoinButton}>회원가입</button>
         </div>
     );
 };
