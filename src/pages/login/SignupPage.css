@@ -93,6 +93,8 @@
 .stipulation-text-box {
     height: 200px;
     background-color: #ECECEC;
+    overflow-y: auto;
+    padding: 10px 30px;
 }
 
 .checkbox-container {

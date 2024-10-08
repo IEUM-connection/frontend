@@ -27,6 +27,10 @@ const QuestionDetailInfo = () => {
                     </div> 
                 </div>
                 <div className='post-question-line'>
+                    <div className="post-question-title">작성자</div>
+                    <div className="post-question-content">{item?.name || ''}</div>
+                </div>
+                <div className='post-question-line'>
                     <div className="post-question-title">문의시간</div>
                     <div className="post-question-content">{item?.questionDate || ''}</div>
                     <div className="post-question-title">문의상태</div>

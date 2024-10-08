@@ -4,6 +4,7 @@ import Header from '../../components/Header';
 import HeaderBottom from '../../components/HeaderBottom';
 import Footer from '../../components/Footer';
 import axios from 'axios'
+import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
 
 const Checkbox = ({ id, title, status, checked, onChange }) => (
@@ -401,7 +402,9 @@ const SignupContainer = () => {
             </div>
             <div className="stipulation">
                 <h3>이용약관</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <MembershipTerms />
+                </div>
                 <Checkbox
                     id={0}
                     title="멤버십 이용약관 동의"
@@ -412,7 +415,9 @@ const SignupContainer = () => {
             </div>
             <div className="stipulation">
                 <h3>개인정보 수집 및 이용</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <PrivacyPolicy />
+                </div>
                 <Checkbox
                     id={1}
                     title="개인정보 수집 및 이용 동의"
@@ -423,7 +428,9 @@ const SignupContainer = () => {
             </div>
             <div className="stipulation">
                 <h3>SMS 수신 동의</h3>
-                <div className="stipulation-text-box"></div>
+                <div className="stipulation-text-box">
+                    <SmsAgreement />
+                </div>
                 <Checkbox
                     id={2}
                     title="SMS 수신 동의"
