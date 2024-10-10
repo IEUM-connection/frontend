@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from './pages/MainPage';
 import SignupPage from './pages/login/SignupPage';
@@ -19,8 +19,48 @@ import QuestionInfo from './pages/admin/QuestionInfo';
 import MemberManagement from './pages/admin/MemberManagement';
 import MemberInfo from './pages/admin/MemberInfo';
 import MemberNoteHistory from './pages/admin/MemberNoteHistory';
+import * as firebaseApp from "firebase/app";
+import * as firebaseMessage from "firebase/messaging";
+export const VAPID_PUBLIC_KEY =process.env.REACT_APP_fcmapikey;
 
 const App = () => {
+
+  useEffect(() => {
+    firebaseApp.initializeApp({
+      apiKey: process.env.REACT_APP_apiKey,
+        authDomain: process.env.REACT_APP_authDomain,
+        projectId: process.env.REACT_APP_projectId,
+        storageBucket: process.env.REACT_APP_storageBucket,
+        messagingSenderId: process.env.REACT_APP_messagingSenderId,
+        appId: process.env.REACT_APP_appId,
+        measurementId: process.env.REACT_APP_measurementId
+    });
+
+    const messaging = firebaseMessage.getMessaging();
+
+    firebaseMessage
+      .getToken(messaging, {
+        vapidKey: VAPID_PUBLIC_KEY,
+      })
+      .then((currentToken) => {
+        if (currentToken) {
+          console.log(currentToken);
+          alert("토큰: " + currentToken);
+          // 토큰을 서버에 전달...
+        } else {
+          // Show permission request UI
+          console.log(
+            "No registration token available. Request permission to generate one."
+          );
+        }
+      })
+      .catch((err) => {
+        console.log("An error occurred while retrieving token. ", err);
+        // ...
+      });
+  }, []);
+
+
   return (
       <Router>
         <Routes>
