@@ -23,44 +23,6 @@ const Header = () => {
         }
     }, [userInfo]);
 
-    useEffect(()=> {
-        const getUserInfo = async () => {
-            try {
-                let accessToken = localStorage.getItem('accessToken');
-                let guardianId = localStorage.getItem('guardianId');
-
-                 if (!accessToken || !guardianId) {
-                console.log('토큰 또는 guardianId가 없습니다.');
-                return;
-            }
-
-                const response = await axios.get(
-                    process.env.REACT_APP_apiHome + `guardians/{guardian-id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                );
-
-                if (response.data) {
-                    const userInfo = response.data;
-                    login(accessToken, userInfo);
-                } else {
-                    console.log('사용자 정보를 가져오지 못했습니다.');
-                }
-            } catch (error) {
-                console.error('사용자 정보를 가져오는 중 에러 발생:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (!userInfo) {
-            getUserInfo();
-        } else {
-            setLoading(false);
-        }
-    }, [userInfo, login]);
 
     const handleLogout = () => {  // 로그아웃 로직 상태 변경 하기 위해
         setIsLoggedIn(false);

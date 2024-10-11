@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import './RequestPage.css';
 import Header from '../../components/Header';
 import HeaderBottom from '../../components/HeaderBottom';
@@ -6,6 +6,7 @@ import Footer from '../../components/Footer';
 import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
+import { AuthContext } from '../../auth/AuthContext';
 
 const CustomDropdown = ({ options, selected, onSelect, className }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -130,12 +131,14 @@ const RequestContainer = () => {
         { id: 4, title: '미신청' }
     ];
 
+    const { userInfo } = useContext(AuthContext);
     const [checkItems, setCheckItems] = useState([]);
     const [address, setAddress] = useState(''); // 주소 api 사용을 위해서 상태 추가
     const [email, setEmail] = useState(''); // 이메일 상태 추가
     const [emailValid, setEmailValid] = useState(null); // 이메일 중복 확인 상태
     const [name, setName] = useState('');
     const [nameError, setNameError] = useState('');
+    const [birthDate, setBirthDate] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [homeNumber, setHomeNumber] = useState('');
@@ -331,7 +334,8 @@ const RequestContainer = () => {
             alert('모든 항목을 올바르게 입력해주세요.');
             return;
         }
-        
+
+        const requiredTerms = [0, 1];  // 필수 항목 정의
         const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
         
         if (!hasAgreedToAllRequiredTerms) {
@@ -362,6 +366,13 @@ const RequestContainer = () => {
                 alert("서비스 신청 중 오류가 발생했습니다.");
         }
     };
+
+    const [ accessToken ] = useContext(userInfo);
+    useEffect(() => {
+        axios.get('guardians/{guardian-id}',
+        {
+            headers: { Authorization: `Bearer ${accessToken}` }});
+        }, []);
 
     return (
         <div className="signup-wrap">
@@ -527,28 +538,28 @@ const RequestContainer = () => {
                 <h3>신청자 정보</h3>
                 <div className="signup-container">
                     <div className='signup-input-line'>
-                        <div className="applicant-info-title-Request">이름</div>
-                        <div className="applicant-info-content-Request"></div>
-                        <div className="applicant-info-title-Request">생년월일</div>
-                        <div className="applicant-info-content-Request"></div>
-                    </div>
-                    <div className='signup-input-line'>
-                        <div className="applicant-info-title-Request">이메일</div>
-                        <div className="applicant-info-content-Request"></div>
-                        <div className="applicant-info-title-Request">가입일자</div>
-                        <div className="applicant-info-content-Request"></div>
-                    </div>
-                    <div className='signup-input-line'>
-                        <div className="applicant-info-title-Request">주소</div>
-                        <div className="applicant-info-content-Request"></div>
-                        <div className="applicant-info-title-Request">상세주소</div>
-                        <div className="applicant-info-content-Request"></div>
-                    </div>
-                    <div className='signup-input-line'>
-                        <div className="applicant-info-title-Request">휴대전화번호</div>
-                        <div className="applicant-info-content-Request"></div>
-                        <div className="applicant-info-title-Request">일반전화번호</div>
-                        <div className="applicant-info-content-Request"></div>
+                    <div className="applicant-info-title-Request">이름</div>
+            <div className="applicant-info-content-Request">{userInfo?.name || '이름 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-title-Request">생년월일</div>
+            <div className="applicant-info-content-Request">{userInfo?.birthDate || '생년월일 정보를 가져올 수 없습니다.'}</div>
+        </div>
+        <div className='signup-input-line'>
+            <div className="applicant-info-title-Request">이메일</div>
+            <div className="applicant-info-content-Request">{userInfo?.email || '이메일 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-title-Request">가입일자</div>
+            <div className="applicant-info-content-Request">{userInfo?.createdAt || '가입일자 정보를 가져올 수 없습니다.'}</div>
+        </div>
+        <div className='signup-input-line'>
+            <div className="applicant-info-title-Request">주소</div>
+            <div className="applicant-info-content-Request">{userInfo?.address || '주소 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-title-Request">상세주소</div>
+            <div className="applicant-info-content-Request">{userInfo?.detailAddress || '상세주소 정보를 가져올 수 없습니다.'}</div>
+        </div>
+        <div className='signup-input-line'>
+            <div className="applicant-info-title-Request">휴대전화번호</div>
+            <div className="applicant-info-content-Request">{userInfo?.phone || '휴대전화번호 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-title-Request">일반전화번호</div>
+            <div className="applicant-info-content-Request">{userInfo?.tel || '일반전화번호 정보를 가져올 수 없습니다.'}</div>
                     </div>
                 </div>
             </div>
@@ -635,7 +646,7 @@ const RequestPage = () => {
             <div className="signup-logo">
                 <img src="/image/logo-text.png" alt="메인로고" />
             </div>
-            <RequestContainer />
+            <RequestContainer/>
             <Footer />
         </div>
     );
