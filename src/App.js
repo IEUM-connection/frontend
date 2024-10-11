@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPage from './pages/MainPage';
 import SignupPage from './pages/login/SignupPage';
@@ -19,72 +19,36 @@ import QuestionInfo from './pages/admin/QuestionInfo';
 import MemberManagement from './pages/admin/MemberManagement';
 import MemberInfo from './pages/admin/MemberInfo';
 import MemberNoteHistory from './pages/admin/MemberNoteHistory';
-import * as firebaseApp from "firebase/app";
-import * as firebaseMessage from "firebase/messaging";
-export const VAPID_PUBLIC_KEY =process.env.REACT_APP_fcmapikey;
+import { AuthProvider } from './auth/AuthContext';
+import ProtectedRoute from './auth/ProtectedRoute';
 
 const App = () => {
-
-  useEffect(() => {
-    firebaseApp.initializeApp({
-      apiKey: process.env.REACT_APP_apiKey,
-        authDomain: process.env.REACT_APP_authDomain,
-        projectId: process.env.REACT_APP_projectId,
-        storageBucket: process.env.REACT_APP_storageBucket,
-        messagingSenderId: process.env.REACT_APP_messagingSenderId,
-        appId: process.env.REACT_APP_appId,
-        measurementId: process.env.REACT_APP_measurementId
-    });
-
-    const messaging = firebaseMessage.getMessaging();
-
-    firebaseMessage
-      .getToken(messaging, {
-        vapidKey: VAPID_PUBLIC_KEY,
-      })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log(currentToken);
-          alert("토큰: " + currentToken);
-          // 토큰을 서버에 전달...
-        } else {
-          // Show permission request UI
-          console.log(
-            "No registration token available. Request permission to generate one."
-          );
-        }
-      })
-      .catch((err) => {
-        console.log("An error occurred while retrieving token. ", err);
-        // ...
-      });
-  }, []);
-
-
   return (
-      <Router>
-        <Routes>
-          <Route path="/" element={<MainPage />}/>
-          <Route path="/signup" element={<SignupPage />}/>
-          <Route path="/membermap" element={<MemberMap />}/>
-          <Route path="/request" element={<RequestPage />}/>
-          <Route path="/mypage" element={<MyPage />}/>
-          <Route path="/service" element={<ServicePage />}/>
-          <Route path="/admin" element={<AdminPage/>} />
-          <Route path="/history" element={<MemberHistory/>} />
-          <Route path="/question/post" element={<PostQuestionPage/>} />
-          <Route path="/myquestion" element={<MyQuestion/>}/>
-          <Route path="/myquestion/detail" element={<MyQuestionDetail/>}/>
-          <Route path="/fna-detail" element={<FnaPage/>}/>
-          <Route path="/admin/serviceRequest" element={<ServiceRequestDetail/>}/>
-          <Route path="/admin/sendAlert" element={<SendAlert/>}/>
-          <Route path="/admin/question" element={<QuestionBoard/>}/>
-          <Route path="/admin/question/info" element={<QuestionInfo/>}/>
-          <Route path="/admin/member" element={<MemberManagement/>}/>
-          <Route path="/admin/memberInfo" element={<MemberInfo/>}/>
-          <Route path="/admin/memberNote" element={<MemberNoteHistory/>}/>
-      </Routes>
-    </Router>
+    <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainPage />}/>
+            <Route path="/signup" element={<SignupPage />}/>
+            <Route path="/membermap" element={<MemberMap />}/>
+            <Route path="/request" element={<RequestPage />}/>
+            <Route path="/mypage" element={<MyPage />}/>
+            <Route path="/service" element={<ServicePage />}/>
+            <Route path="/admin" element={<ProtectedRoute element={<AdminPage/>} />} />
+            <Route path="/history" element={<MemberHistory/>} />
+            <Route path="/question/post" element={<PostQuestionPage/>} />
+            <Route path="/myquestion" element={<MyQuestion/>}/>
+            <Route path="/myquestion/detail" element={<MyQuestionDetail/>}/>
+            <Route path="/fna-detail" element={<FnaPage/>}/>
+            <Route path="/admin/serviceRequest" element={<ProtectedRoute element={<ServiceRequestDetail/>}/>}/>
+            <Route path="/admin/sendAlert" element={<ProtectedRoute element={<SendAlert/>}/>}/>
+            <Route path="/admin/question" element={<ProtectedRoute element={<QuestionBoard/>}/>}/>
+            <Route path="/admin/question/info" element={<ProtectedRoute element={<QuestionInfo/>}/>}/>
+            <Route path="/admin/member" element={<ProtectedRoute element={<MemberManagement/>}/>}/>
+            <Route path="/admin/memberInfo" element={<ProtectedRoute element={<MemberInfo/>}/>}/>
+            <Route path="/admin/memberNote" element={<ProtectedRoute element={<MemberNoteHistory/>}/>}/>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 };
 

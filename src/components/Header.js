@@ -1,20 +1,66 @@
 import './Header.css';
 import LoginModal from '../modals/LoginModal';
 import AlertModal from '../modals/AlertModal';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../auth/AuthContext'; 
+import axios from 'axios';
 
 const Header = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertCount, setAlertCount] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리용
+    const { userInfo, logout, login } = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const handleLogin = () => {  
-        setIsLoggedIn(true); // 로그인 상태 변경. !나중에 지워야함!
-        setIsModalOpen(true);
-    };
+    useEffect(() => {
+        if (userInfo) {
+            setIsLoggedIn(true); // userInfo가 있으면 로그인 상태로 변경
+        } else {
+            setIsLoggedIn(false); // userInfo가 없으면 로그아웃 상태로 변경
+        }
+    }, [userInfo]);
+
+    useEffect(()=> {
+        const getUserInfo = async () => {
+            try {
+                let accessToken = localStorage.getItem('accessToken');
+                let guardianId = localStorage.getItem('guardianId');
+
+                 if (!accessToken || !guardianId) {
+                console.log('토큰 또는 guardianId가 없습니다.');
+                return;
+            }
+
+                const response = await axios.get(
+                    process.env.REACT_APP_apiHome + `guardians/{guardian-id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+
+                if (response.data) {
+                    const userInfo = response.data;
+                    login(accessToken, userInfo);
+                } else {
+                    console.log('사용자 정보를 가져오지 못했습니다.');
+                }
+            } catch (error) {
+                console.error('사용자 정보를 가져오는 중 에러 발생:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (!userInfo) {
+            getUserInfo();
+        } else {
+            setLoading(false);
+        }
+    }, [userInfo, login]);
 
     const handleLogout = () => {  // 로그아웃 로직 상태 변경 하기 위해
         setIsLoggedIn(false);
@@ -27,11 +73,9 @@ const Header = () => {
 
     const handleAlertClick = () => {
         if (isAlertModalOpen) {
-            // 모달이 열려있을 때 닫으면서 알림 숫자를 0으로 변경
             setIsAlertModalOpen(false);
             setAlertCount(0);
         } else if (alertCount > 0) {
-            // 알림 숫자가 0보다 클 때 모달을 연다
             setIsAlertModalOpen(true);
         }
     };
@@ -41,6 +85,18 @@ const Header = () => {
         setAlertCount(0);
     };
 
+
+    // useEffect(() => {
+    //     if (isAuthenticated && userInfo) {
+    //         if (userInfo.loginType === 'admin') {
+    //             setUserLocation(userInfo.location);
+    //             setLoginType('admin');
+    //         } else if (userInfo.loginType === 'guardian') {
+    //             setUserName(userInfo.name);
+    //             setLoginType('guardian');
+    //         }
+    //     }
+    // }, [isAuthenticated, userInfo]); 
 
     return (
         <div className="header-container">
@@ -62,8 +118,12 @@ const Header = () => {
                             )}
                         </div>
                         <div className="user-welcome">
-                            <div className="user-name"> 역삼2동 최고민수 님</div>
-                            <div className="welcome-message">환영합니다!</div>
+                        {userInfo?.loginType === 'admin' ? (
+                            <div className="user-name">{userInfo.location} 님</div>
+                        ) : (
+                            <div className="user-name">{userInfo.name} 님</div>
+                        )}
+                        <div className="welcome-message">환영합니다!</div>
                         </div>
                         <button className="logout-button" onClick={handleLogout}>로그아웃</button>
                     </div>
@@ -72,7 +132,7 @@ const Header = () => {
                         <div className="profile-icon">
                             <img src="/image/profile.png" alt="프로필아이콘" />
                         </div>
-                        <button className="login-button" onClick={handleLogin}>로그인</button>
+                        <button className="login-button" onClick={() => setIsModalOpen(true)}>로그인</button>
                     </div>
                 )}
             {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} />}
