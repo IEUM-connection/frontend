@@ -4,16 +4,50 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import axios from 'axios'
 
 const PostQuestion = () => {
     const navigate=useNavigate();
     const [currentTime, setCurrentTime] = useState('');
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
 
     useEffect(() => {
         const now = new Date();
         const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         setCurrentTime(formattedTime);
     }, []);
+
+
+        // 문의 남기기
+        const handleSubmitButton = async () => {
+            const accessToken = localStorage.getItem('accessToken'); 
+
+            try {
+                const response = await axios.post(process.env.REACT_APP_apiHome + `questions`, 
+                {
+                    "questionTitle": title,
+                        "questionContent": content
+                },
+                {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+            });
+        
+                // 회원가입 완료 후 알림창과 페이지 이동
+                alert('회원가입이 완료되었습니다.');
+                navigate('/');
+            } catch (error) {
+                console.error('회원가입 중 오류:', error);
+                alert('회원가입 중 오류가 발생했습니다.');
+            }
+        };
+
+        const handleTitleChange = (e) => {
+            setTitle(e.target.value);
+        };
+        const handleContentChange = (e) => {
+            setContent(e.target.value);
+        };
 
     return (
         <div className="MyPage-signup-wrap">
@@ -22,7 +56,7 @@ const PostQuestion = () => {
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <input className="post-question-title-input" type="text" placeholder='내용을 입력해주세요.'></input>
+                        <input className="post-question-title-input" type="text" placeholder='내용을 입력해주세요.' onChange={handleTitleChange}></input>
                     </div> 
                 </div>
                 <div className='post-question-line'>
@@ -33,10 +67,10 @@ const PostQuestion = () => {
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <textarea className="post-question-content-1" placeholder='내용을 입력해주세요.'></textarea>
+                    <textarea className="post-question-content-1" placeholder='내용을 입력해주세요.'  onChange={handleContentChange}></textarea>
                 </div>
             </div>
-            <button className="signup-submit" onClick={() => navigate('/request/my')}>문의등록</button>
+            <button className="signup-submit" onClick={handleSubmitButton}>문의등록</button>
         </div>
     )
 };
