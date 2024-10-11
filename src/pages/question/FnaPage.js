@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
 
 const ShowInfo = () => {
     const navigate=useNavigate();
+    const location = useLocation();
     const [currentTime, setCurrentTime] = useState('');
+    const { item } = location.state || {};
 
     useEffect(() => {
         const now = new Date();
@@ -21,12 +23,12 @@ const ShowInfo = () => {
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <div className="post-question-title-input" type="text"></div>
+                        <div className="post-question-title-input" type="text">{item?.questionTitle}</div>
                     </div> 
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <div className="post-question-content-1"></div>
+                    <div className="post-question-content-1">{item?.responseContent}</div>
                 </div>
             </div>
         </div>

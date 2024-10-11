@@ -10,6 +10,12 @@ const MyQuestionInfo = () => {
     const location = useLocation();
     const { item } = location.state || {};
 
+    const simpleday = (day) =>
+    (
+        // yyyy-mm-dd
+        `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+    );
+
     return (
         <div className="MyPage-signup-wrap">
             <div className="applicant-info">
@@ -24,9 +30,9 @@ const MyQuestionInfo = () => {
                 </div>
                 <div className='post-question-line'>
                     <div className="post-question-title">문의시간</div>
-                    <div className="post-question-content">{item?.questionDate || ''}</div>
+                    <div className="post-question-content">{simpleday(item.questionDate)}</div>
                     <div className="post-question-title">문의상태</div>
-                    <div className="post-question-content">{item?.status || '-'}</div>
+                    <div className="post-question-content">{item.questionStatus === "PENDING" ? "답변대기중" : "답변완료" || '-'}</div>
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
@@ -34,7 +40,7 @@ const MyQuestionInfo = () => {
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">답변내용</div>
-                    <div className="post-question-content-1"></div>
+                    <div className="post-question-content-1"> {item?.responseContent || ''} </div>
                 </div>
             </div>
         </div>

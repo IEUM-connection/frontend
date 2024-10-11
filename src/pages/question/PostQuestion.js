@@ -32,13 +32,9 @@ const PostQuestion = () => {
                 {
                     headers: { Authorization: `Bearer ${accessToken}` }
             });
-        
-                // 회원가입 완료 후 알림창과 페이지 이동
-                alert('회원가입이 완료되었습니다.');
-                navigate('/');
+                navigate('/myquestion');
             } catch (error) {
-                console.error('회원가입 중 오류:', error);
-                alert('회원가입 중 오류가 발생했습니다.');
+                console.error('문의 남기기 중 오류:', error);
             }
         };
 

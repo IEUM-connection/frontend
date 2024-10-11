@@ -10,8 +10,9 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     // 더미데이터
     const historyData = Array.from({ length: totalItems }, (_, i) => ({
         number: i + 1,
-        history: `자주묻는질문 ${i + 1}`,
+        questionTitle: `자주묻는질문?! ${i + 1}`,
         date: `2024.10.${(i % 30) + 1}`,
+        responseContent: `답변입니다`
     })).reverse();
     const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -20,7 +21,7 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
     const simpleday = (day) =>
         (
             // yyyy-mm-dd
-            `${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+            `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
         );
     
 
@@ -43,9 +44,9 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
                     <div className="service-date"> 등록날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/fna-detail')}>
+                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/fna-detail', { state: { item } })}>
                         <div className="service-header"> {item.number} </div> 
-                        <div className="service-title"> {item.history} </div>
+                        <div className="service-title"> {item.questionTitle} </div>
                         <div className="service-date"> {simpleday(item.date)} </div>
                     </div>
                 ))}
