@@ -322,9 +322,22 @@ const RequestContainer = () => {
         return true;
     };
 
-    // 서비스 신청 버튼
-    const handleRequestSubmit = async () => {
-        if (validateForm()) {
+    const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
+
+
+    const handleJoinButton = async () => {
+        // 필수 필드와 약관 동의 모두 확인
+        if (!name || !phoneNumber || !age || !address || !relationship) {
+            alert('모든 항목을 올바르게 입력해주세요.');
+            return;
+        }
+        
+        const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
+        
+        if (!hasAgreedToAllRequiredTerms) {
+            alert('필수 약관에 모두 동의해 주세요.');
+            return;
+        }
             try {
                 const response = await axios.post(
                     process.env.REACT_APP_apiHome + "members", 
@@ -338,7 +351,7 @@ const RequestContainer = () => {
                         "age": age,
                         "relationship": relationship,
                         "documentAttachment": file,
-                        "milkDeliveryRequest": "",
+                        "milkDeliveryRequest": checkItems,
                         "adminNote": "",
                 });
 
@@ -347,7 +360,6 @@ const RequestContainer = () => {
                 navigate('/');
             } catch (error) {
                 alert("서비스 신청 중 오류가 발생했습니다.");
-            }
         }
     };
 
@@ -516,25 +528,25 @@ const RequestContainer = () => {
                 <div className="signup-container">
                     <div className='signup-input-line'>
                         <div className="applicant-info-title-Request">이름</div>
-                        <div className="applicant-info-content-Request">윤영하</div>
+                        <div className="applicant-info-content-Request"></div>
                         <div className="applicant-info-title-Request">생년월일</div>
-                        <div className="applicant-info-content-Request">1984.08.01.</div>
+                        <div className="applicant-info-content-Request"></div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title-Request">이메일</div>
-                        <div className="applicant-info-content-Request">luckykor@gmail.com</div>
+                        <div className="applicant-info-content-Request"></div>
                         <div className="applicant-info-title-Request">가입일자</div>
-                        <div className="applicant-info-content-Request">2024.08.01.</div>
+                        <div className="applicant-info-content-Request"></div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title-Request">주소</div>
-                        <div className="applicant-info-content-Request">경기도 하남시 풍산로 가리봉동 남삼호 1224번길 (129-125)</div>
+                        <div className="applicant-info-content-Request"></div>
                         <div className="applicant-info-title-Request">상세주소</div>
-                        <div className="applicant-info-content-Request">태영아파트 204동 102호</div>
+                        <div className="applicant-info-content-Request"></div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title-Request">휴대전화번호</div>
-                        <div className="applicant-info-content-Request">010-4444-4444</div>
+                        <div className="applicant-info-content-Request"></div>
                         <div className="applicant-info-title-Request">일반전화번호</div>
                         <div className="applicant-info-content-Request"></div>
                     </div>
@@ -602,7 +614,7 @@ const RequestContainer = () => {
                 </label>
             </div>
         </div>
-            <button className="signup-submit"  onClick={handleRequestSubmit}>서비스 신청</button>
+            <button className="signup-submit"  onClick={handleJoinButton}>서비스 신청</button>
         </div>
     );
 };

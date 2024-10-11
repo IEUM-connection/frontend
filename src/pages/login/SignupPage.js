@@ -6,6 +6,7 @@ import Footer from '../../components/Footer';
 import axios from 'axios'
 import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 
 const Checkbox = ({ id, title, status, checked, onChange }) => (
     <div className="checkbox-container">
@@ -61,6 +62,9 @@ const SignupContainer = () => {
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [homeNumber, setHomeNumber] = useState('');
     const [homeNumberError, setHomeNumberError] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [detailAddress, setdetialAddress] = useState('');
+    const { accessToken } = useAuth();
 
     // 체크박스 개별 선택하기
     const selectChecked = (checked, id) => {
@@ -81,27 +85,42 @@ const SignupContainer = () => {
         }
     };
 
-    // 이메일 중복 확인
-    // const checkEmail = async () => {
-    //     if (!email) {
-    //         alert('이메일을 입력하세요.');
-    //         return;
-    //     }
-
-    //     try {
-    //         const response = await axios.post('API_ENDPOINT', { email });
-    //         if (response.data.exists) {
-    //             setEmailValid(false);
-    //             alert('이미 사용 중인 이메일입니다.');
-    //         } else {
-    //             setEmailValid(true);
-    //             alert('사용 가능한 이메일입니다.');
-    //         }
-    //     } catch (error) {
-    //         console.error('이메일 중복 확인 오류:', error);
-    //         alert('이메일 중복 확인 중 오류가 발생했습니다.');
-    //     }
-    // };
+    //이메일 중복 확인
+    const checkEmail = async () => {
+        if (!email) {
+            alert('이메일을 입력하세요.');
+            return;
+        }
+        try {
+            const response = await axios.get(
+                process.env.REACT_APP_apiHome + `guardians/check-email`,
+                {
+                    params: { email: email },  // 쿼리 파라미터로 이메일 전달
+                }
+            );
+    
+            // 서버 응답에 따른 조건문 변경
+            if (response.data === "Email is already in use") {
+                setEmailValid(false);
+                alert('이미 사용 중인 이메일입니다.');
+            } else if (response.data === "Email is available") {
+                setEmailValid(true);
+                alert('사용 가능한 이메일입니다.');
+            }
+        } catch (error) {
+            if (error.response) {
+                // 서버에서의 에러 응답이 있을 경우
+                console.error('이메일 중복 확인 오류:', error.response.status, error.response.data);
+            } else if (error.request) {
+                // 요청은 보내졌으나 서버 응답이 없을 경우
+                console.error('서버 응답 없음:', error.request);
+            } else {
+                // 기타 에러
+                console.error('이메일 중복 확인 중 오류 발생:', error.message);
+            }
+            alert('이메일 중복 확인 중 오류가 발생했습니다.');
+        }
+    };
 
     const handleNameChange = (e) => {
         setName(e.target.value);
@@ -214,6 +233,10 @@ const SignupContainer = () => {
         }
     };
 
+    const handleDetailAddressChange = (e) => {
+        setdetialAddress(e.target.value);
+    };
+
     // 주소 api 검색 호출
     const openDaumPostcode = () => {
         new window.daum.Postcode({
@@ -235,6 +258,7 @@ const SignupContainer = () => {
                 // 우편번호와 주소를 결합하여 하나의 문자열로 설정
                 const combinedAddress = `(${data.zonecode}) ${fullAddress}`;
                 setAddress(combinedAddress); // 주소 상태 업데이트
+                setPostalCode(data.zonecode); 
             }
         }).open();
     };
@@ -243,41 +267,44 @@ const SignupContainer = () => {
 
     // 회원가입
     const handleJoinButton = async () => {
-            if (!email || emailError || !password || password !== confirmPassword || !phoneNumber || !address) {
-                alert('모든 항목을 올바르게 입력해주세요.');
-                return;
-            }
-            
-            const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
-            
-            if (!hasAgreedToAllRequiredTerms) {
-                alert('필수 약관에 모두 동의해 주세요.');
-                return;
-            }
+        if (!emailValid) {
+            alert('이미 사용 중인 이메일입니다. 다른 이메일을 사용해 주세요.');
+            return;
+        }
     
-            try {
-                const response = await axios.post(process.env.REACT_APP_apiHome + "guardians", { 
-                    "email": email,
-                    "password": password,
-                    "name": name,
-                    "tel": phoneNumber,
-                    "phone": phoneNumber,
-                    "address": address,
-                    "detailedAddress": "",
-                    "postalCode": ""
-                });
-                if (response.data.exists) {
-                    setEmailValid(false);
-                    alert('이미 사용 중인 이메일입니다.');
-                } else {
-                    // 회원가입 완료 후 알림창과 페이지 이동
-                    alert('회원가입이 완료되었습니다.');
-                    navigate('/');  // 메인 페이지로 이동
-                }
-            } catch (error) {
-                alert('회원가입 중 오류가 발생했습니다.');
-            }
-        };
+        if (!email || emailError || !password || password !== confirmPassword || !phoneNumber || !address) {
+            alert('모든 항목을 올바르게 입력해주세요.');
+            return;
+        }
+    
+        const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
+    
+        if (!hasAgreedToAllRequiredTerms) {
+            alert('필수 약관에 모두 동의해 주세요.');
+            return;
+        }
+    
+        try {
+            const response = await axios.post(process.env.REACT_APP_apiHome + `guardians`, 
+            {
+                "email": email,
+                "password": password,
+                "name": name,
+                "tel": homeNumber,
+                "phone": phoneNumber,
+                "address": address,
+                "detailedAddress": detailAddress,
+                "postalCode": postalCode,
+            });
+    
+            // 회원가입 완료 후 알림창과 페이지 이동
+            alert('회원가입이 완료되었습니다.');
+            navigate('/');
+        } catch (error) {
+            console.error('회원가입 중 오류:', error);
+            alert('회원가입 중 오류가 발생했습니다.');
+        }
+    };
     
 
     return (
@@ -323,7 +350,7 @@ const SignupContainer = () => {
                             {emailError || '이메일은 로그인시 아이디로 사용됩니다.'}
                         </div>
                     </div>
-                    <button className="search-email" >중복 확인</button>
+                    <button className="search-email" onClick={checkEmail}>중복 확인</button>
                 </div>
                 <div className='signup-input-line'>
                     <div className="signup-title">비밀번호</div>
@@ -380,7 +407,11 @@ const SignupContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">상세주소</div>
                     <div className="signup-input-box">
-                        <input className="signup-input"></input>
+                        <input 
+                            className="signup-input" 
+                            value={detailAddress} 
+                            onChange={handleDetailAddressChange} // 상세주소 입력 시 상태 업데이트
+                        />
                         <div className="signup-guide"></div>
                     </div>
                 </div>
