@@ -14,32 +14,17 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
+        const storedUserInfo = localStorage.getItem('userInfo');
         
-        if (token) {
-            // 토큰이 존재하면 Authorization 헤더에 추가
+        if (token && storedUserInfo) {
             setAccessToken(token);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setUserInfo(JSON.parse(storedUserInfo));
+            setIsAuthenticated(true);
 
-            // 토큰을 사용해 서버에서 사용자 정보 요청
-            fetchUserInfo(token);
+            // 새로고침 후에도 axios 요청에 토큰을 자동으로 포함
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
     }, []);
-
-    const fetchUserInfo = async (token) => {
-        try {
-            const response = await axios.get('guardians/{guardian-id}'); // 서버에서 토큰으로 사용자 정보 가져오기
-            const userInfo = response.data.data; // 응답에서 사용자 정보 추출
-            setUserInfo(userInfo);
-            setIsAuthenticated(true);
-            
-            // 로컬 스토리지에 사용자 정보 저장
-            localStorage.setItem('userInfo', JSON.stringify(userInfo));
-        } catch (error) {
-            console.error('Failed to fetch user info:', error);
-            logout(); // 오류 발생 시 로그아웃 처리
-        }
-    };
-
 
     const login = (token, userInfo) => {
         setAccessToken(token);
@@ -53,7 +38,9 @@ export const AuthProvider = ({ children }) => {
         // axios에 기본 Authorization 헤더 설정
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     };
-
+    useEffect(() => {
+        console.log('Current userInfo in AuthContext:', userInfo);
+    }, [userInfo]);
 
     const logout = () => {
         localStorage.removeItem('accessToken');
