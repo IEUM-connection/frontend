@@ -3,7 +3,7 @@ import LoginModal from '../modals/LoginModal';
 import AlertModal from '../modals/AlertModal';
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../auth/AuthContext'; 
+import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
 
 const Header = () => {
@@ -11,8 +11,8 @@ const Header = () => {
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertCount, setAlertCount] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리용
-    const { userInfo, logout, login } = useContext(AuthContext);
-    const [loading, setLoading] = useState(true);
+    const { accessToken, userInfo, isAuthenticated, logout } = useAuth();  // useAuth()로 수정
+    const [guardianInfo, setGuardianInfo] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,7 +25,8 @@ const Header = () => {
 
 
     const handleLogout = () => {  // 로그아웃 로직 상태 변경 하기 위해
-        setIsLoggedIn(false);
+        logout();  // 로그아웃 시 AuthContext의 logout 함수 호출
+        navigate('/');
     };
     
     //알림 숫자 더미데이터 (나중에 지우고 데이터 받아오기)
@@ -45,20 +46,28 @@ const Header = () => {
     const closeAlertModal = () => {
         setIsAlertModalOpen(false);
         setAlertCount(0);
-    };
+    }; 
 
+    useEffect(() => {
+        const fetchGuardianInfo = async () => {
+            try {
+                const response = await axios.get(
+                    process.env.REACT_APP_apiHome + `guardians`,
+                    {   
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    }
+                );
+                setGuardianInfo(response.data.data);  // 보호자 정보 상태에 저장
+            } catch (error) {
+                console.error('보호자 정보 가져오기 실패:', error);
+            }
+        };
 
-    // useEffect(() => {
-    //     if (isAuthenticated && userInfo) {
-    //         if (userInfo.loginType === 'admin') {
-    //             setUserLocation(userInfo.location);
-    //             setLoginType('admin');
-    //         } else if (userInfo.loginType === 'guardian') {
-    //             setUserName(userInfo.name);
-    //             setLoginType('guardian');
-    //         }
-    //     }
-    // }, [isAuthenticated, userInfo]); 
+        if (accessToken) {
+            fetchGuardianInfo();  // 토큰이 있을 때만 API 호출
+        }
+    }, [accessToken]);
+
 
     return (
         <div className="header-container">
@@ -83,7 +92,11 @@ const Header = () => {
                         {userInfo?.loginType === 'admin' ? (
                             <div className="user-name">{userInfo.location} 님</div>
                         ) : (
-                            <div className="user-name">{userInfo.name} 님</div>
+                            guardianInfo ? (  // guardianInfo가 있을 때만 표시
+                                <div className="user-name">{guardianInfo.name} 님</div>
+                            ) : (
+                                <div>로딩 중...</div>  // guardianInfo가 없을 때 로딩 중 표시
+                            )
                         )}
                         <div className="welcome-message">환영합니다!</div>
                         </div>

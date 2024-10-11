@@ -1,11 +1,6 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 export const AuthContext = createContext();
-
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,44 +8,32 @@ export const AuthProvider = ({ children }) => {
     const [userInfo, setUserInfo] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
+        // 애플리케이션이 로드될 때 localStorage에서 토큰과 사용자 정보를 불러와 상태를 업데이트
+        const storedToken = localStorage.getItem('accessToken');
         const storedUserInfo = localStorage.getItem('userInfo');
-        
-        if (token && storedUserInfo) {
-            setAccessToken(token);
+
+        if (storedToken && storedUserInfo) {
+            setAccessToken(storedToken);
             setUserInfo(JSON.parse(storedUserInfo));
             setIsAuthenticated(true);
-
-            // 새로고침 후에도 axios 요청에 토큰을 자동으로 포함
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
-    }, []);
+    }, []);  // 컴포넌트가 마운트될 때만 실행
 
-    const login = (token, userInfo) => {
-        setAccessToken(token);
-        // userInfo를 올바르게 설정
-        setUserInfo({ ...userInfo, guardianId: userInfo.guardianId });
+    const login = (token, userData) => {
         setIsAuthenticated(true);
-        // 로컬 스토리지에 토큰과 사용자 정보 저장
+        setAccessToken(token);
+        setUserInfo(userData);
         localStorage.setItem('accessToken', token);
-        localStorage.setItem('userInfo', JSON.stringify({...userInfo, guardianId: userInfo.guardianId}));
-
-        // axios에 기본 Authorization 헤더 설정
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        localStorage.setItem('userInfo', JSON.stringify(userData));
     };
-    useEffect(() => {
-        console.log('Current userInfo in AuthContext:', userInfo);
-    }, [userInfo]);
+
 
     const logout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('userInfo');
+        setIsAuthenticated(false);
         setAccessToken(null);
         setUserInfo(null);
-        setIsAuthenticated(false);
-
-         // axios 기본 Authorization 헤더 제거
-         delete axios.defaults.headers.common['Authorization'];
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('userInfo');
     };
 
     return (
@@ -58,4 +41,8 @@ export const AuthProvider = ({ children }) => {
             {children}
         </AuthContext.Provider>
     );
+};
+
+export const useAuth = () => {
+    return useContext(AuthContext);
 };

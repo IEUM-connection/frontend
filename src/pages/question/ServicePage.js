@@ -2,39 +2,45 @@ import React, { useState, useEffect } from 'react';
 import './ServicePage.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
-import axios from 'axios'
+import FaqData from '../../faq_data/FaqData';
 
-const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        number: i + 1,
-        questionTitle: `자주묻는질문?! ${i + 1}`,
-        date: `2024.10.${(i % 30) + 1}`,
-        responseContent: `답변입니다`
-    })).reverse();
+const HistoryInfo = ({ currentPage, itemsPerPage, searchTerm, onSearch }) => {
+    const [faqData, setFaqData] = useState([]);
     const navigate = useNavigate();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
 
-    const simpleday = (day) =>
-        (
-            // yyyy-mm-dd
-            `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+    useEffect(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const reversedData = [...FaqData].reverse();
+        const filteredData = reversedData.filter(item => 
+            item.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    
+        const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+        setFaqData(paginatedData);
+    }, [currentPage, itemsPerPage, searchTerm]);
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            onSearch();
+        }
+    };
 
     return (
         <div className="memberHistory">
             <div className="search-container">
-                <input className="search-bar" placeholder='검색'></input>
-                <div className="search-button"> 검색
+                <input
+                    className="search-bar"
+                    placeholder="검색"
+                    defaultValue={searchTerm}
+                    onKeyDown={handleKeyPress} 
+                />
+                <div className="search-button" onClick={onSearch}> 검색
                     <img src="/image/searchIcon.png" alt="메인로고" />
                 </div>
             </div>
             <div className='order-question-container'>
-                <div className="history-view-count">조회결과 {totalItems} 건</div>
+                <div className="history-view-count">조회결과 {faqData.length} 건</div>
                 <button className="order-question" onClick={() => navigate('/question/post')}>문의하기</button>
             </div>
             <div className="memberHistory-container">
@@ -43,17 +49,22 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
                     <div className="service-title1"> 제목 </div>
                     <div className="service-date"> 등록날짜 </div>
                 </div>
-                {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/fna-detail', { state: { item } })}>
-                        <div className="service-header"> {item.number} </div> 
-                        <div className="service-title"> {item.questionTitle} </div>
-                        <div className="service-date"> {simpleday(item.date)} </div>
-                    </div>
-                ))}
+                {faqData.length === 0 ? (
+                    <div className="no-results">검색 결과가 없습니다.</div>
+                ) : (
+                    faqData.map((item) => (
+                        <div className="memberHistory-content" key={item.number} onClick={() => navigate(`/fna-detail/${item.number}`, { state: { searchTerm } })}>
+                            <div className="service-header"> {item.number} </div> 
+                            <div className="service-title"> {item.title} </div>
+                            <div className="service-date"> {item.date} </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
-    )
+    );
 };
+
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     const getPaginationRange = (currentPage, totalPages) => {
@@ -97,10 +108,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 const ServicePage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const itemsPerPage = 10;
-    const totalItems = 11; // Example total items
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm || '');
+    const [filteredItemsCount, setFilteredItemsCount] = useState(FaqData.length);
+    const totalPages = Math.ceil(filteredItemsCount / itemsPerPage);
 
     const handleNavigation = (item) => {
         if (item === "내질문조회") {
@@ -117,11 +130,26 @@ const ServicePage = () => {
         }
     };
 
+    const handleSearch = () => {
+        const searchInput = document.querySelector('.search-bar').value;
+        setSearchTerm(searchInput);
+        const filteredCount = FaqData.filter(item => item.title.toLowerCase().includes(searchInput.toLowerCase())).length;
+        setFilteredItemsCount(filteredCount); 
+        setCurrentPage(1);
+        navigate('/service', { state: { searchTerm: searchInput } });
+    };
+
     return (
         <div className="app">
             <Header />
             <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <HistoryInfo 
+                currentPage={currentPage} 
+                itemsPerPage={itemsPerPage} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm}
+                onSearch={handleSearch}
+            />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>

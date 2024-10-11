@@ -7,60 +7,33 @@ import HeaderBottom from '../../components/HeaderBottom';
 import { useAuth } from '../../auth/AuthContext';
 import axios from 'axios'
 
-// const ShowInfo = () => {
-//     const navigate = useNavigate();
-//     const { accessToken } = useAuth();
-//     const [guardianId, setGuardianId] = useState();
-//     const [guardianInfo, setGuardianInfo] = useState(null);
-
-//     useEffect(() => {
-//         // API 호출로 guardian 정보 가져오기
-//         const fetchGuardianInfo = async () => {
-//             try {
-//                 const response = await axios.get(
-//                     process.env.REACT_APP_apiHome + 'guardian/${guardian-id}', {
-//                         headers: {
-//                             Authorization: `${accessToken}`
-//                         }
-//                 });
-//                 setGuardianInfo(response.data);  // 받아온 데이터를 상태에 저장
-//             } catch (error) {
-//                 console.error('보호자 정보 가져오기 실패:', error);
-//             }
-//         };
-
-//         fetchGuardianInfo();
-//     }, [accessToken, guardianId]);
-
 const ShowInfo = () => {
     const navigate = useNavigate();
-    const { accessToken } = useAuth(); // AuthContext에서 accessToken 가져오기
+    const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
     const [guardianInfo, setGuardianInfo] = useState(null);
 
     useEffect(() => {
-        // 보호자 정보를 가져오는 함수
         const fetchGuardianInfo = async () => {
             try {
-                // 토큰을 Authorization 헤더에 추가하여 API 요청
-                const response = await axios.get(`${process.env.REACT_APP_apiHome}/guardians/guardian-id`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,  // Bearer 토큰 형식으로 추가
-                    },
-                });
-                setGuardianInfo(response.data.data);  // 받아온 보호자 정보를 상태에 저장
+                const response = await axios.get(
+                    process.env.REACT_APP_apiHome + `guardians`, // userInfo에서 guardianId를 사용
+                    {   
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    }
+                );
+                setGuardianInfo(response.data.data); // 보호자 정보 상태에 저장
             } catch (error) {
                 console.error('보호자 정보 가져오기 실패:', error);
             }
         };
 
         if (accessToken) {
-            fetchGuardianInfo();  // 토큰이 있을 때만 보호자 정보 요청 실행
+            fetchGuardianInfo(); // 토큰이 있을 때만 API 호출
         }
     }, [accessToken]);
 
-
     if (!guardianInfo) {
-        return <div>로딩 중...</div>;  // 데이터를 불러오는 동안 표시될 내용
+        return <div>로딩 중...</div>; // 보호자 정보 로딩 중일 때 표시
     }
 
     return (
@@ -116,25 +89,25 @@ const ShowInfo = () => {
                         <div className="applicant-info-title">이름</div>
                         <div className="applicant-info-content">{guardianInfo.name}</div>
                         <div className="applicant-info-title">생년월일</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantBirthDate}</div>
+                        <div className="applicant-info-content">{guardianInfo.birthDate}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">이메일</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantEmail}</div>
+                        <div className="applicant-info-content">{guardianInfo.email}</div>
                         <div className="applicant-info-title">가입일자</div>
-                        <div className="applicant-info-content">{guardianInfo.registrationDate}</div>
+                        <div className="applicant-info-content">{guardianInfo.createdAt}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">주소</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantAddress}</div>
+                        <div className="applicant-info-content">{guardianInfo.address}</div>
                         <div className="applicant-info-title">상세주소</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantDetailedAddress}</div>
+                        <div className="applicant-info-content">{guardianInfo.detailedAddress}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">휴대전화번호</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantPhone}</div>
+                        <div className="applicant-info-content">{guardianInfo.phone}</div>
                         <div className="applicant-info-title">일반전화번호</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantHomePhone || '없음'}</div>
+                        <div className="applicant-info-content">{guardianInfo.tel || '없음'}</div>
                     </div>
                 </div>
             </div>

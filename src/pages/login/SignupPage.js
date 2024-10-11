@@ -91,11 +91,12 @@ const SignupContainer = () => {
             alert('이메일을 입력하세요.');
             return;
         }
+    
         try {
             const response = await axios.get(
-                process.env.REACT_APP_apiHome + `guardians/check-email`,
+                process.env.REACT_APP_apiHome + `guardians/email`,
                 {
-                    params: { email: email },  // 쿼리 파라미터로 이메일 전달
+                    params: { email: email }
                 },
             );
     
@@ -285,7 +286,7 @@ const SignupContainer = () => {
         }
     
         try {
-            const response = await axios.post(process.env.REACT_APP_apiHome + `guardians`, 
+                const response = await axios.post(process.env.REACT_APP_apiHome + `guardians`, 
             {
                 "email": email,
                 "password": password,
@@ -295,6 +296,7 @@ const SignupContainer = () => {
                 "address": address,
                 "detailedAddress": detailAddress,
                 "postalCode": postalCode,
+                "birthDate": birth,
             });
     
             // 회원가입 완료 후 알림창과 페이지 이동

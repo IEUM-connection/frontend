@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import FaqData from '../../faq_data/FaqData';
 
 const ShowInfo = () => {
-    const navigate=useNavigate();
-    const location = useLocation();
-    const [currentTime, setCurrentTime] = useState('');
-    const { item } = location.state || {};
+    const { id } = useParams();
+    const [faqDetail, setFaqDetail] = useState(null);
 
     useEffect(() => {
-        const now = new Date();
-        const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        setCurrentTime(formattedTime);
-    }, []);
+        const faqItem = FaqData.find(item => item.number === parseInt(id));
+        if (faqItem) {
+            setFaqDetail(faqItem);
+        }
+    }, [id]);
+    
+    if (!faqDetail) {
+        return <div>로딩 중...</div>;
+    }
 
     return (
         <div className="MyPage-signup-wrap">
@@ -23,12 +27,12 @@ const ShowInfo = () => {
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <div className="post-question-title-input" type="text">{item?.questionTitle}</div>
+                        <div className="post-question-title-input" type="text">{faqDetail.title}</div>
                     </div> 
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <div className="post-question-content-1">{item?.responseContent}</div>
+                    <div className="post-question-content-1">{faqDetail.content}</div>
                 </div>
             </div>
         </div>

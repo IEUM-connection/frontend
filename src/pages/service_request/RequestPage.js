@@ -6,7 +6,7 @@ import Footer from '../../components/Footer';
 import { MembershipTerms, PrivacyPolicy, SmsAgreement } from '../../components/TermsOfUse'; 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
-import { AuthContext } from '../../auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 
 const CustomDropdown = ({ options, selected, onSelect, className }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -131,7 +131,6 @@ const RequestContainer = () => {
         { id: 4, title: '미신청' }
     ];
 
-    const { userInfo } = useContext(AuthContext);
     const [checkItems, setCheckItems] = useState([]);
     const [address, setAddress] = useState(''); // 주소 api 사용을 위해서 상태 추가
     const [email, setEmail] = useState(''); // 이메일 상태 추가
@@ -152,6 +151,17 @@ const RequestContainer = () => {
     const [file, setFile] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+    const [guardianInfo, setGuardianInfo] = useState(null);
+    const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
+    const [residentNumber, setResidentNumber] = useState('');
+    const [detailAddress, setdetialAddress] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [medicalHistory, setMedicalHistory] = useState('');
+    const [notes, setNotes] = useState('');
+    const [latitude, setLatitude] = useState('');
+    const [longitude, setLongitude] = useState('');
+    const [emergencyContact, setEmergencyContact] = useState('');
+
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -228,6 +238,19 @@ const RequestContainer = () => {
         setAge(e.target.value);
     };
 
+    const handleNotesChange = (e) => {
+        setNotes(e.target.value);
+    };
+
+    const handleMedicalHistoryChange = (e) => {
+        setMedicalHistory(e.target.value);
+    };
+
+    const handleResidentNumberChange = (e) => {
+        setResidentNumber(e.target.value);
+    }
+
+
     const handleAgeBlur = (e) => {
         const value = e.target.value.trim(); // 입력값에서 공백 제거
         const age = parseInt(value, 10); // 문자열을 정수로 변환
@@ -273,12 +296,15 @@ const RequestContainer = () => {
                 console.log('도로명주소 : ' + data.roadAddress);
                 console.log('지번주소 : ' + data.jibunAddress);
                 console.log('우편번호 : ' + data.zonecode);
+                setPostalCode(data.zonecode);
     
                 const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.addressSearch(data.roadAddress, (result, status) => {
                     if (status === kakao.maps.services.Status.OK) {
                         console.log('위도 : ' + result[0].y);
                         console.log('경도 : ' + result[0].x);
+                        setLatitude(result[0].y);
+                        setLongitude(result[0].x);
                     }
                 });
     
@@ -327,6 +353,9 @@ const RequestContainer = () => {
 
     const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
 
+    const handleDetailAddressChange = (e) => {
+        setdetialAddress(e.target.value);
+    };
 
     const handleJoinButton = async () => {
         // 필수 필드와 약관 동의 모두 확인
@@ -343,20 +372,25 @@ const RequestContainer = () => {
             return;
         }
             try {
-                const response = await axios.post(
-                    process.env.REACT_APP_apiHome + "members", 
+                    const response = await axios.post(
+                        process.env.REACT_APP_apiHome +`members`, 
                     { 
                         "name": name,
                         "phone": phoneNumber,
                         "tel": homeNumber,
                         "address": address,
-                        "detailAddress": "",
-                        "postalCode": "",
+                        "detailAddress": detailAddress,
+                        "postalCode": postalCode,
                         "age": age,
                         "relationship": relationship,
                         "documentAttachment": file,
                         "milkDeliveryRequest": checkItems,
-                        "adminNote": "",
+                        "notes": notes,
+                        "residentNumber": residentNumber,
+                        "medicalHistory": medicalHistory,
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "emergencyContact": emergencyContact
                 });
 
                 // 성공 시 알림 및 메인 페이지로 이동
@@ -367,12 +401,29 @@ const RequestContainer = () => {
         }
     };
 
-    // const [ accessToken ] = useContext(userInfo);
-    // useEffect(() => {
-    //     axios.get('guardians/{guardian-id}',
-    //     {
-    //         headers: { Authorization: `Bearer ${accessToken}` }});
-    //     }, []);
+    useEffect(() => {
+        const fetchGuardianInfo = async () => {
+            try {
+                const response = await axios.get(
+                    process.env.REACT_APP_apiHome + `guardians`, // userInfo에서 guardianId를 사용
+                    {   
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    }
+                );
+                setGuardianInfo(response.data.data); // 보호자 정보 상태에 저장
+            } catch (error) {
+                console.error('보호자 정보 가져오기 실패:', error);
+            }
+        };
+
+        if (accessToken) {
+            fetchGuardianInfo(); // 토큰이 있을 때만 API 호출
+        }
+    }, [accessToken]);
+
+    if (!guardianInfo) {
+        return <div>로딩 중...</div>; // 보호자 정보 로딩 중일 때 표시
+    }
 
     return (
         <div className="signup-wrap">
@@ -393,7 +444,11 @@ const RequestContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">주민등록번호</div>
                     <div className="signup-input-box">
-                        <input className="signup-input"></input>
+                    <input
+                            className="signup-input"
+                            value={residentNumber}
+                            onChange={handleResidentNumberChange}
+                        />
                     </div>
                     <button className="search-email" >본인 인증</button>
                 </div>
@@ -411,7 +466,11 @@ const RequestContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">상세주소</div>
                     <div className="signup-input-box">
-                        <input className="signup-input"></input>
+                        <input 
+                            className="signup-input" 
+                            value={detailAddress} 
+                            onChange={handleDetailAddressChange} // 상세주소 입력 시 상태 업데이트
+                        />
                         <div className="signup-guide"></div>
                     </div>
                 </div>
@@ -473,7 +532,11 @@ const RequestContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">병력 사항</div>
                     <div className="signup-input-box">
-                        <input className="signup-input"></input>
+                        <input
+                            className="signup-input"
+                            value={medicalHistory}
+                            onChange={handleMedicalHistoryChange}
+                        />
                     </div>
                 </div>
                 <div className='signup-input-line'>
@@ -529,7 +592,11 @@ const RequestContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">대상자 특이사항</div>
                     <div className="signup-input-box">
-                        <input className="signup-input"></input>
+                    <input
+                            className="signup-input"
+                            value={notes}
+                            onChange={handleNotesChange}
+                        />
                     </div>
                 </div>
             </div>
@@ -539,27 +606,27 @@ const RequestContainer = () => {
                 <div className="signup-container">
                     <div className='signup-input-line'>
                     <div className="applicant-info-title-Request">이름</div>
-            <div className="applicant-info-content-Request">{userInfo?.name || '이름 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.name}</div>
             <div className="applicant-info-title-Request">생년월일</div>
-            <div className="applicant-info-content-Request">{userInfo?.birthDate || '생년월일 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.birthDate}</div>
         </div>
         <div className='signup-input-line'>
             <div className="applicant-info-title-Request">이메일</div>
-            <div className="applicant-info-content-Request">{userInfo?.email || '이메일 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.email}</div>
             <div className="applicant-info-title-Request">가입일자</div>
-            <div className="applicant-info-content-Request">{userInfo?.createdAt || '가입일자 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.createdAt}</div>
         </div>
         <div className='signup-input-line'>
             <div className="applicant-info-title-Request">주소</div>
-            <div className="applicant-info-content-Request">{userInfo?.address || '주소 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.address}</div>
             <div className="applicant-info-title-Request">상세주소</div>
-            <div className="applicant-info-content-Request">{userInfo?.detailAddress || '상세주소 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.detailedAddress}</div>
         </div>
         <div className='signup-input-line'>
             <div className="applicant-info-title-Request">휴대전화번호</div>
-            <div className="applicant-info-content-Request">{userInfo?.phone || '휴대전화번호 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.phone}</div>
             <div className="applicant-info-title-Request">일반전화번호</div>
-            <div className="applicant-info-content-Request">{userInfo?.tel || '일반전화번호 정보를 가져올 수 없습니다.'}</div>
+            <div className="applicant-info-content-Request">{guardianInfo.tel || '없음'}</div>
                     </div>
                 </div>
             </div>
