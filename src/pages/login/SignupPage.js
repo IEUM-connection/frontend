@@ -96,7 +96,7 @@ const SignupContainer = () => {
                 process.env.REACT_APP_apiHome + `guardians/check-email`,
                 {
                     params: { email: email },  // 쿼리 파라미터로 이메일 전달
-                }
+                },
             );
     
             // 서버 응답에 따른 조건문 변경

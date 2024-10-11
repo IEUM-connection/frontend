@@ -367,12 +367,12 @@ const RequestContainer = () => {
         }
     };
 
-    const [ accessToken ] = useContext(userInfo);
-    useEffect(() => {
-        axios.get('guardians/{guardian-id}',
-        {
-            headers: { Authorization: `Bearer ${accessToken}` }});
-        }, []);
+    // const [ accessToken ] = useContext(userInfo);
+    // useEffect(() => {
+    //     axios.get('guardians/{guardian-id}',
+    //     {
+    //         headers: { Authorization: `Bearer ${accessToken}` }});
+    //     }, []);
 
     return (
         <div className="signup-wrap">

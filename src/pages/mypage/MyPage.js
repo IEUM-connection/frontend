@@ -7,30 +7,57 @@ import HeaderBottom from '../../components/HeaderBottom';
 import { useAuth } from '../../auth/AuthContext';
 import axios from 'axios'
 
+// const ShowInfo = () => {
+//     const navigate = useNavigate();
+//     const { accessToken } = useAuth();
+//     const [guardianId, setGuardianId] = useState();
+//     const [guardianInfo, setGuardianInfo] = useState(null);
+
+//     useEffect(() => {
+//         // API 호출로 guardian 정보 가져오기
+//         const fetchGuardianInfo = async () => {
+//             try {
+//                 const response = await axios.get(
+//                     process.env.REACT_APP_apiHome + 'guardian/${guardian-id}', {
+//                         headers: {
+//                             Authorization: `${accessToken}`
+//                         }
+//                 });
+//                 setGuardianInfo(response.data);  // 받아온 데이터를 상태에 저장
+//             } catch (error) {
+//                 console.error('보호자 정보 가져오기 실패:', error);
+//             }
+//         };
+
+//         fetchGuardianInfo();
+//     }, [accessToken, guardianId]);
+
 const ShowInfo = () => {
     const navigate = useNavigate();
-    const { accessToken } = useAuth();
-    const [guardianId, setGuardianId] = useState();
+    const { accessToken } = useAuth(); // AuthContext에서 accessToken 가져오기
     const [guardianInfo, setGuardianInfo] = useState(null);
 
     useEffect(() => {
-        // API 호출로 guardian 정보 가져오기
+        // 보호자 정보를 가져오는 함수
         const fetchGuardianInfo = async () => {
             try {
-                const response = await axios.get(
-                    process.env.REACT_APP_apiHome + 'guardian/${guardianId}', {
-                        headers: {
-                            Authorization: `${accessToken}`
-                        }
+                // 토큰을 Authorization 헤더에 추가하여 API 요청
+                const response = await axios.get(`${process.env.REACT_APP_apiHome}/guardians/guardian-id`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,  // Bearer 토큰 형식으로 추가
+                    },
                 });
-                setGuardianInfo(response.data);  // 받아온 데이터를 상태에 저장
+                setGuardianInfo(response.data.data);  // 받아온 보호자 정보를 상태에 저장
             } catch (error) {
                 console.error('보호자 정보 가져오기 실패:', error);
             }
         };
 
-        fetchGuardianInfo();
-    }, [accessToken, guardianId]);
+        if (accessToken) {
+            fetchGuardianInfo();  // 토큰이 있을 때만 보호자 정보 요청 실행
+        }
+    }, [accessToken]);
+
 
     if (!guardianInfo) {
         return <div>로딩 중...</div>;  // 데이터를 불러오는 동안 표시될 내용
@@ -87,7 +114,7 @@ const ShowInfo = () => {
                 <div className="signup-container">
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">이름</div>
-                        <div className="applicant-info-content">{guardianInfo.applicantName}</div>
+                        <div className="applicant-info-content">{guardianInfo.name}</div>
                         <div className="applicant-info-title">생년월일</div>
                         <div className="applicant-info-content">{guardianInfo.applicantBirthDate}</div>
                     </div>
