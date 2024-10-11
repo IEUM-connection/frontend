@@ -19,7 +19,7 @@ const MyQuestionInfo = ({ currentPage, totalItems, paginatedData }) => {
     const simpleday = (day) =>
         (
             // yyyy-mm-dd
-            `${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+            `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
         );
     
 
@@ -99,7 +99,7 @@ const MyQuestion = () => {
     const [paginatedData, setPaginatedData] = useState({});
     const [totalpage, settotalpage] = useState(1);
     const [curruntpage, setcurruntpage] = useState(1);
-    const [totalItems, setTotalItems] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
 
     const searchPosts = async () => {
         try {
