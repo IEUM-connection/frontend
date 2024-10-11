@@ -40,40 +40,22 @@ const LoginModal = ({ onClose }) => {
                 }
             );
 
-            console.log(response);
             let token = response.headers['authorization'];
 
             if (token) {
-                console.log('사용자 토큰 정보:', token);
-                const guardianId  = response.data.guardianId; // 로그인 후 응답에서 guardianId를 받아옴
-                console.log(guardianId);
-
-                // 로컬스토리지에 guardianId와 토큰 저장
-                localStorage.setItem('accessToken', token);
+                const guardianId = response.data.guardianId; // 서버에서 반환된 guardianId
+                localStorage.setItem('accessToken', token); 
                 localStorage.setItem('guardianId', guardianId);
-  
 
-                const getUserInfo = await axios.get(
-                    process.env.REACT_APP_apiHome + `guardians/{guardian-id}`,
-                    {
-                        headers: {
-                            
-                            Authorization: `Bearer ${token}`
-                        },
-                    }
-                );
-                if (getUserInfo && getUserInfo.data) {
-                    const userInfo = getUserInfo.data;
-                    login(token, userInfo); // 사용자 정보로 로그인 처리
-                    closeModal();
-                    navigate('/');
-                }
+                // login 함수를 통해 AuthContext에 userInfo 설정
+                login(token, { guardianId });
+
+                closeModal();
+                navigate('/');
             } else {
-                console.log('토큰을 찾을 수 없습니다.');
                 alert('로그인에 실패했습니다.');
             }
         } catch (error) {
-            console.log('에러 발생:', error);
             alert('로그인에 실패했습니다.');
         }
     };
