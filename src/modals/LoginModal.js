@@ -64,15 +64,19 @@ const LoginModal = ({ onClose }) => {
             let token = response.headers['authorization'];
 
             if (token) {
-                // 서버에서 받은 사용자 정보를 가져옵니다.
-                const userId = response.data.userId; // 사용자 ID를 응답에서 받아옵니다.
-                const loginType = response.data.loginType[0].authority; // 권한 정보 (예: GUARDIAN 또는 ADMIN)
-    
+                console.log("token : " + token);
+                console.log("response.data : " + response.data);
+
                 // 로컬 저장소에 토큰과 사용자 정보를 저장합니다.
                 localStorage.setItem('accessToken', token); // 토큰 저장
+
+                // 서버에서 받은 사용자 정보를 가져옵니다.
+                const userId = response.data ? response.data.userId : email; // 사용자 ID를 응답에서 받아옵니다.
+                const loginType = response.data? response.data.loginType[0]?.authority : "ADMIN"; // 권한 정보 (예: GUARDIAN 또는 ADMIN)
+                
                 localStorage.setItem('loginType', loginType); // 로그인 타입 저장
                 localStorage.setItem('userId', userId); // 사용자 ID 저장
-    
+
                 // 로그인 상태를 업데이트합니다.
                 login(token, { loginType, userId });
     
