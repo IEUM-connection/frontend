@@ -127,8 +127,6 @@ const RequestContainer = () => {
         { id: 0, title: '멤버십 이용약관 동의', status: '(필수)' },
         { id: 1, title: '개인정보 수집 및 이용 동의', status: '(필수)' },
         { id: 2, title: 'SMS 수신 동의', status: '(선택)' },
-        { id: 3, title: '신청' },
-        { id: 4, title: '미신청' }
     ];
 
     const [checkItems, setCheckItems] = useState([]);
@@ -161,6 +159,7 @@ const RequestContainer = () => {
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
     const [emergencyContact, setEmergencyContact] = useState('');
+    const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(''); 
 
 
     const handleFileChange = (e) => {
@@ -290,13 +289,26 @@ const RequestContainer = () => {
         /* global kakao */ // 이 주석을 추가하여 ESLint에게 kakao가 전역 객체임을 알림
         new window.daum.Postcode({
             oncomplete: (data) => {
-                let fullAddress = data.address;
+                let fullAddress = data.roadAddress;
                 let extraAddress = '';
+
+                // 주소에 추가 정보가 있는 경우 처리
+                if (data.bname !== '') {
+                    extraAddress += data.bname;
+                }
+                if (data.buildingName !== '') {
+                    extraAddress += (extraAddress !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
     
+                if (extraAddress !== '') {
+                    fullAddress += ` (${extraAddress})`;
+                }
+
                 console.log('도로명주소 : ' + data.roadAddress);
                 console.log('지번주소 : ' + data.jibunAddress);
                 console.log('우편번호 : ' + data.zonecode);
-                setPostalCode(data.zonecode);
+                setPostalCode(data.zonecode); 
+                setAddress(fullAddress.trim()); 
     
                 const geocoder = new kakao.maps.services.Geocoder();
                 geocoder.addressSearch(data.roadAddress, (result, status) => {
@@ -307,21 +319,6 @@ const RequestContainer = () => {
                         setLongitude(result[0].x);
                     }
                 });
-    
-                // 주소에 추가 정보가 있는 경우 처리
-                if (data.addressType === 'R') {
-                    if (data.bname !== '') {
-                        extraAddress += data.bname;
-                    }
-                    if (data.buildingName !== '') {
-                        extraAddress += (extraAddress !== '' ? ', ' + data.buildingName : data.buildingName);
-                    }
-                    fullAddress += (extraAddress !== '' ? ' (' + extraAddress + ')' : '');
-                }
-    
-                // 우편번호와 주소를 결합하여 하나의 문자열로 설정
-                const combinedAddress = `(${data.zonecode}) ${fullAddress}`;
-                setAddress(combinedAddress); // 주소 상태 업데이트
             }
         }).open();
     };
@@ -374,24 +371,29 @@ const RequestContainer = () => {
             try {
                     const response = await axios.post(
                         process.env.REACT_APP_apiHome +`members`, 
-                    { 
-                        "name": name,
-                        "phone": phoneNumber,
-                        "tel": homeNumber,
-                        "address": address,
-                        "detailAddress": detailAddress,
-                        "postalCode": postalCode,
-                        "age": age,
-                        "relationship": relationship,
-                        "documentAttachment": file,
-                        "milkDeliveryRequest": checkItems,
-                        "notes": notes,
-                        "residentNumber": residentNumber,
-                        "medicalHistory": medicalHistory,
-                        "latitude": latitude,
-                        "longitude": longitude,
-                        "emergencyContact": emergencyContact
-                });
+                        {
+                            name: name.trim(),
+                            phone: phoneNumber.trim(),
+                            tel: homeNumber.trim(),
+                            address: address.trim(),   // 도로명 주소 사용
+                            detailAddress: detailAddress.trim(),
+                            postalCode: postalCode.trim(),
+                            age: age,
+                            relationship: relationship,
+                            documentAttachment: file,
+                            milkDeliveryRequest: milkDeliveryRequest,
+                            notes: notes,
+                            residentNumber: residentNumber,
+                            medicalHistory: medicalHistory,
+                            latitude: latitude,
+                            longitude: longitude,
+                            emergencyContact: emergencyContact
+                        },
+                    { headers: { 
+                        Authorization: `Bearer ${accessToken}` ,
+                        'Content-Type': 'application/json'
+                }}
+            );
 
                 // 성공 시 알림 및 메인 페이지로 이동
                 alert("서비스 신청이 완료되었습니다.");
@@ -546,26 +548,14 @@ const RequestContainer = () => {
                             <Checkbox
                                 id={3}
                                 title="신청"
-                                checked={checkItems.includes(3)}
-                                onChange={(checked) => {
-                                    if (checked) {
-                                        setCheckItems((items) => items.filter((el) => el !== 4).concat(3));
-                                    } else {
-                                        setCheckItems((items) => items.filter((el) => el !== 3));
-                                    }
-                                }}
+                                checked={milkDeliveryRequest === true}
+                                onChange={() => setMilkDeliveryRequest(true)}
                             />
                             <Checkbox
                                 id={4}
                                 title="미신청"
-                                checked={checkItems.includes(4)}
-                                onChange={(checked) => {
-                                    if (checked) {
-                                        setCheckItems((items) => items.filter((el) => el !== 3).concat(4));
-                                    } else {
-                                        setCheckItems((items) => items.filter((el) => el !== 4));
-                                    }
-                                }}
+                                checked={milkDeliveryRequest === false}
+                                onChange={() => setMilkDeliveryRequest(false)}
                             />
                         </div>
                         <div className="signup-guide-milk">*우유 가정 배달 서비스는 우유배달을 통해 안부를 묻는 서비스입니다.</div>

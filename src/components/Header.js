@@ -1,7 +1,7 @@
 import './Header.css';
 import LoginModal from '../modals/LoginModal';
 import AlertModal from '../modals/AlertModal';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import axios from 'axios';
@@ -12,14 +12,15 @@ const Header = () => {
     const [alertCount, setAlertCount] = useState(0);
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리용
     const { accessToken, userInfo, isAuthenticated, logout } = useAuth();  // useAuth()로 수정
-    const [guardianInfo, setGuardianInfo] = useState(null);
+    const [userDetails, setUserDetails] = useState(null); 
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log('User Info:', userInfo);  // loginType 확인
         if (userInfo) {
-            setIsLoggedIn(true); // userInfo가 있으면 로그인 상태로 변경
+            setIsLoggedIn(true);
         } else {
-            setIsLoggedIn(false); // userInfo가 없으면 로그아웃 상태로 변경
+            setIsLoggedIn(false);
         }
     }, [userInfo]);
 
@@ -49,25 +50,46 @@ const Header = () => {
     }; 
 
     useEffect(() => {
-        const fetchGuardianInfo = async () => {
+        const fetchUserInfo = async () => {
+            if (!accessToken) {
+                console.log('No access token available');
+                return;
+            }
+
             try {
-                const response = await axios.get(
-                    process.env.REACT_APP_apiHome + `guardians`,
-                    {   
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    }
-                );
-                setGuardianInfo(response.data.data);  // 보호자 정보 상태에 저장
+                const loginType = localStorage.getItem('loginType');
+                console.log('Login Type:', loginType);
+
+                let url;
+                if (loginType === 'ADMIN') {
+                    url = `${process.env.REACT_APP_apiHome}admins`;
+                    console.log('Fetching admin info');
+                } else {
+                    url = `${process.env.REACT_APP_apiHome}guardians`;
+                    console.log('Fetching guardian info');
+                }
+
+                const response = await axios.get(url, {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                });
+
+                console.log('API Response:', response.data);
+
+                if (response.data && response.data.data) {
+                    setUserDetails(response.data.data);
+                    console.log('User Details set:', response.data.data);
+                } else {
+                    console.error('Invalid response format:', response.data);
+                }
             } catch (error) {
-                console.error('보호자 정보 가져오기 실패:', error);
+                console.error('정보 가져오기 실패:', error.response ? error.response.data : error.message);
             }
         };
 
-        if (accessToken) {
-            fetchGuardianInfo();  // 토큰이 있을 때만 API 호출
-        }
+        fetchUserInfo();
     }, [accessToken]);
 
+    console.log('Current userDetails:', userDetails);
 
     return (
         <div className="header-container">
@@ -89,16 +111,25 @@ const Header = () => {
                             )}
                         </div>
                         <div className="user-welcome">
-                        {userInfo?.loginType === 'admin' ? (
-                            <div className="user-name">{userInfo.location} 님</div>
-                        ) : (
-                            guardianInfo ? (  // guardianInfo가 있을 때만 표시
-                                <div className="user-name">{guardianInfo.name} 님</div>
+                            {userDetails ? (
+                                <>
+                                    {localStorage.getItem('loginType') === 'ADMIN' ? (
+                                        <>
+                                            {/* admin일 경우 location과 name 출력 */}
+                                            <div className="user-name">{userDetails.location}</div>
+                                            <div className="welcome-message-admin">{userDetails.name} 님</div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* guardian일 경우 기존처럼 name과 환영 메시지 출력 */}
+                                            <div className="user-name">{userDetails.name} 님</div>
+                                            <div className="welcome-message">환영합니다!</div>
+                                        </>
+                                    )}
+                                </>
                             ) : (
-                                <div>로딩 중...</div>  // guardianInfo가 없을 때 로딩 중 표시
-                            )
-                        )}
-                        <div className="welcome-message">환영합니다!</div>
+                                <div>로딩 중...</div>
+                            )}
                         </div>
                         <button className="logout-button" onClick={handleLogout}>로그아웃</button>
                     </div>

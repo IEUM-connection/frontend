@@ -7,23 +7,10 @@ import HeaderBottom from '../../components/HeaderBottom';
 import axios from 'axios'
 
 const MyQuestionInfo = ({ currentPage, totalItems, paginatedData }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        questionId: i + 1,
-        questionTitle: `이런거 저런거 궁금한데 질문입니다. ${i + 1}`,
-        status: i % 2 === 0 ? '답변완료' : '답변대기중',
-        questionDate: `2024.10.${(i % 30) + 1}`,
-        questionContent: `이런거 저런거 궁금한데 질문입니다. 도대체 여기는 뭐하는 곳이죠?.`
-    })).reverse();
+    const simpleday = (day) => (
+         `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+    );
 
-    const simpleday = (day) =>
-        (
-            // yyyy-mm-dd
-            `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
-        );
-    
-
-    // const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
     const navigate = useNavigate();
 
     return (
@@ -37,7 +24,7 @@ const MyQuestionInfo = ({ currentPage, totalItems, paginatedData }) => {
                     <div className="header-type"> 문의 상태 </div>
                     <div className="header-date"> 문의 날짜 </div>
                 </div>
-                {paginatedData.length > 0 ? paginatedData.map((item) => (
+                {paginatedData.length > 0 ? paginatedData.map((item, index) => (
                     <div className="memberHistory-content" 
                         key={item.questionId} 
                         onClick={() => navigate('/myquestion/detail', { state: { item } })}
@@ -97,35 +84,36 @@ const MyQuestion = () => {
     const navigate = useNavigate();
 
     const [paginatedData, setPaginatedData] = useState({});
-    const [totalpage, settotalpage] = useState(1);
-    const [curruntpage, setcurruntpage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
 
     const searchPosts = async () => {
         try {
             const accessToken = localStorage.getItem('accessToken'); 
-
-            const response = await axios.get(process.env.REACT_APP_apiHome + 'questions?'
-            + 'page=' + curruntpage + '&size=' + 10 + '&sort=questionId_desc', {
-            headers: { Authorization: `Bearer ${accessToken}` }
+            const response = await axios.get(process.env.REACT_APP_apiHome + 'questions', { 
+                params: {
+                    page: currentPage,
+                    size: 10,
+                    sort: 'questionId_desc'
+                },
+                headers: { Authorization: `Bearer ${accessToken}` }
             });
 
-            console.log("accessToken : " + accessToken);
-
             if (response !== undefined) {
-                settotalpage(response.data.pageInfo.totalPages);
+                setTotalPage(response.data.pageInfo.totalPages);
                 setPaginatedData(response.data.data);
                 setTotalItems(response.data.pageInfo.totalElements);
                 console.log(response);
             }
         } catch (error) {
-            alert("키워드로 게시물을 검색하는 중 오류가 발생했습니다. 다시 시도해주세요.");
+            alert("내 질문을 조회하는 중 오류가 발생했습니다. 다시 시도해주세요.");
         }
     };
 
     useEffect(() => {
         searchPosts();
-    }, [curruntpage]);
+    }, [currentPage]);
 
     const handleNavigation = (item) => {
         if (item === "내질문조회") {
@@ -137,8 +125,8 @@ const MyQuestion = () => {
     };
 
     const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalpage) {
-            setcurruntpage(page);
+        if (page >= 1 && page <= totalPage) {
+            setCurrentPage(page);
         }
     };
 
@@ -146,8 +134,8 @@ const MyQuestion = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            <MyQuestionInfo currentPage={curruntpage} totalItems={totalItems} paginatedData={paginatedData} />
-            <Pagination curruntpage={curruntpage} totalpage={totalpage} onPageChange={handlePageChange} />
+            <MyQuestionInfo currentPage={currentPage} totalItems={totalItems} paginatedData={paginatedData} />
+            <Pagination curruntpage={currentPage} totalpage={totalPage} onPageChange={handlePageChange} />
             <Footer />
         </div>
     );

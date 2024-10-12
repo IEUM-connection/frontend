@@ -13,7 +13,8 @@ const MyQuestionInfo = () => {
     const simpleday = (day) =>
     (
         // yyyy-mm-dd
-        `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1).toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
+        `${(new Date(day).getFullYear()).toString().padStart(4, '0')}-${(new Date(day).getMonth() + 1)
+            .toString().padStart(2, '0')}-${new Date(day).getDate().toString().padStart(2, '0')}`
     );
 
     return (

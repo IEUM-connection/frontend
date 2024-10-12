@@ -20,13 +20,13 @@ export const AuthProvider = ({ children }) => {
     }, []);  // 컴포넌트가 마운트될 때만 실행
 
     const login = (token, userData) => {
+        console.log('로그인한 사용자 정보:', userData);
         setIsAuthenticated(true);
         setAccessToken(token);
         setUserInfo(userData);
         localStorage.setItem('accessToken', token);
         localStorage.setItem('userInfo', JSON.stringify(userData));
     };
-
 
     const logout = () => {
         setIsAuthenticated(false);

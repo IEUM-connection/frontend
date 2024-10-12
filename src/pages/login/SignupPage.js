@@ -142,26 +142,27 @@ const SignupContainer = () => {
 
     const handleBirthBlur = (e) => {
         const value = e.target.value;
-        const regex = /^[0-9]{8}$/; // 8자리 숫자만 허용
-
+        const regex = /^\d{4}-\d{2}-\d{2}$/; // yyyy-MM-dd 형식 허용
+    
         if (!regex.test(value)) {
-            setBirthError('8자리 숫자만 입력 가능합니다.');
+            setBirthError('올바른 날짜 형식을 입력하세요. (예: 1992-12-12)');
             return;
         }
-
+    
         // 날짜 범위 검증
         const year = parseInt(value.substring(0, 4), 10);
-        const month = parseInt(value.substring(4, 6), 10);
-        const day = parseInt(value.substring(6, 8), 10);
+        const month = parseInt(value.substring(5, 7), 10);
+        const day = parseInt(value.substring(8, 10), 10);
         
         const inputDate = new Date(`${year}-${month}-${day}`);
         const minDate = new Date('1924-01-01');
         const maxDate = new Date('2024-12-31');
-
+    
         if (inputDate >= minDate && inputDate <= maxDate && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+            setBirth(value); // 입력값을 그대로 유지
             setBirthError(''); // 입력값이 유효할 경우 에러 메시지 초기화
         } else {
-            setBirthError('19240101 ~ 20241231 사이의 날짜만 입력 가능합니다.');
+            setBirthError('1924-01-01 ~ 2024-12-31 사이의 날짜만 입력 가능합니다.');
         }
     };
 
@@ -328,14 +329,14 @@ const SignupContainer = () => {
                 <div className='signup-input-line'>
                     <div className="signup-title">생년월일</div>
                     <div className="signup-input-box">
-                        <input
-                            className="signup-input"
-                            value={birth}
-                            onBlur={handleBirthBlur}
-                            onChange={handleBirthChange}
-                        />
+                    <input
+                        className="signup-input"
+                        value={birth}
+                        onBlur={handleBirthBlur}
+                        onChange={handleBirthChange}
+                    />
                         <div className={`signup-guide ${birthError ? 'error' : ''}`}>
-                            19240101 ~ 20241231 사이의 날짜만 입력 가능합니다. 예시)19811201
+                            1924-01-01 ~ 2024-12-31 사이의 날짜만 입력 가능합니다.
                         </div>
                     </div>
                 </div>
