@@ -82,7 +82,7 @@ const LoginModal = ({ onClose }) => {
     
                 // 로그인 성공 시 모달을 닫고, 관리자면 관리자 대시보드로, 그렇지 않으면 메인 페이지로 이동합니다.
                 closeModal();
-                navigate(loginType === 'ADMIN' ? '/admin-dashboard' : '/');
+                navigate(loginType === 'ADMIN' ? '/' : '/');
             } else {
                 throw new Error('No token received'); // 토큰을 받지 못한 경우 오류 발생
             }

@@ -1,24 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminPage.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import { useAuth } from '../../auth/AuthContext';
+import axios from 'axios';
 
-const ServiceApproval = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        serviceId: i + 1,
-        name: `고세동`,
-        address: `테헤란로 7길 7`,
-        detailAddress: `5층 7실습실`,
-        guardianId: `신청자 : 윤영하`,
-        date: `2024.10.${(i % 30) + 1}`,
-    })).reverse();
 
+const ServiceApproval = ({ currentPage, itemsPerPage }) => {
+    const [historyData, setHistoryData] = useState([]); // 서버에서 불러온 데이터를 저장할 상태
+    const [totalItems, setTotalItems] = useState(0); // 총 신청 내역 수 저장
+    const { accessToken, userInfo } = useAuth();
     const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const [status, setStatus] = useState('AWAITING_APPROVAL');
+
+    const handleStatusChange = (newStatus) => {
+        setStatus(newStatus); // 상태 변경 시 새로운 status 값을 설정
+    };
+
+    const formatDate = (dateString) => {
+        // createdAt에서 년-월-일 추출
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    useEffect(() => {
+        const fetchServiceRequests = async () => {
+            try {
+                const response = await axios.get(process.env.REACT_APP_apiHome + `members/status/${status}`, {
+                    params: {
+                        page: currentPage,
+                        size: itemsPerPage,
+                        // status: 'AWAITING_APPROVAL',
+                    },
+                    headers: {  // 수정된 부분
+                        Authorization: `Bearer ${accessToken}`,
+                    } // 수정된 부분
+                });
+                setHistoryData(response.data.data); // 서버에서 받은 데이터를 상태에 저장
+                setTotalItems(response.data.totalItems); // 총 아이템 수를 상태에 저장
+            } catch (error) {
+                console.error('서비스 신청 내역 불러오기 실패:', error);
+            }
+        };
+
+        fetchServiceRequests();
+    }, [currentPage, itemsPerPage]);
 
     return (
         <div className="memberHistory">
@@ -26,16 +59,16 @@ const ServiceApproval = ({ currentPage, itemsPerPage, totalItems }) => {
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
-                    <div className="header-number"> 번호 </div>
+                    <div className="header-number"> 신청인 </div>
                     <div className="header-title"> 신청 정보 </div>
                     <div className="header-date"> 신청 날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
                     <div className="memberHistory-content" key={item.serviceId} 
                         onClick={() => navigate('/admin/serviceRequest', { state: { item } })}>
-                        <div className="header-number"> {item.serviceId} </div> 
-                        <div className="content-title"> {item.name} - {item.address} {item.detailAddress} ({item.guardianId}) </div>
-                        <div className="header-date"> {item.date} </div>
+                        <div className="header-number"> {item.guardianName} </div> 
+                        <div className="content-title"> {item.name}({item.age}세) / {item.address}</div>
+                        <div className="header-date"> {formatDate(item.createdAt)} </div>
                     </div>
                 ))}
             </div>
