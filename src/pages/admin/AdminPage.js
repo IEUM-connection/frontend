@@ -8,9 +8,8 @@ import { useAuth } from '../../auth/AuthContext';
 import axios from 'axios';
 
 
-const ServiceApproval = ({ currentPage, itemsPerPage }) => {
+const ServiceApproval = ({ currentPage, itemsPerPage, setTotalItems }) => {
     const [historyData, setHistoryData] = useState([]); // 서버에서 불러온 데이터를 저장할 상태
-    const [totalItems, setTotalItems] = useState(0); // 총 신청 내역 수 저장
     const { accessToken, userInfo } = useAuth();
     const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -37,35 +36,34 @@ const ServiceApproval = ({ currentPage, itemsPerPage }) => {
                     params: {
                         page: currentPage,
                         size: itemsPerPage,
-                        // status: 'AWAITING_APPROVAL',
                     },
-                    headers: {  // 수정된 부분
+                    headers: { 
                         Authorization: `Bearer ${accessToken}`,
-                    } // 수정된 부분
+                    }
                 });
-                setHistoryData(response.data.data); // 서버에서 받은 데이터를 상태에 저장
-                setTotalItems(response.data.totalItems); // 총 아이템 수를 상태에 저장
+                setHistoryData(response.data.data);
+                setTotalItems(response.data.totalItems); // totalItems 값을 부모 컴포넌트로 전달
             } catch (error) {
                 console.error('서비스 신청 내역 불러오기 실패:', error);
             }
         };
 
         fetchServiceRequests();
-    }, [currentPage, itemsPerPage]);
+    }, [currentPage, itemsPerPage, status]);
 
     return (
         <div className="memberHistory">
             <h3>서비스 신청 내역</h3>
-            <div className="history-view-count">조회결과 {totalItems} 건</div>
+            <div className="history-view-count">조회결과 {historyData.length} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
-                    <div className="header-number"> 신청인 </div>
+                    <div className="header-number"> 신청자 </div>
                     <div className="header-title"> 신청 정보 </div>
                     <div className="header-date"> 신청 날짜 </div>
                 </div>
                 {paginatedData.map((item) => (
                     <div className="memberHistory-content" key={item.serviceId} 
-                        onClick={() => navigate('/admin/serviceRequest', { state: { item } })}>
+                        onClick={() => navigate(`/admin/serviceRequest/${item.memberId}`, { state: { item } })}>
                         <div className="header-number"> {item.guardianName} </div> 
                         <div className="content-title"> {item.name}({item.age}세) / {item.address}</div>
                         <div className="header-date"> {formatDate(item.createdAt)} </div>
@@ -119,9 +117,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 const AdminPage = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 11; // Example total items
+    const [totalItems, setTotalItems] = useState(0); // totalItems를 상태로 관리
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
     const handleNavigation = (item) => {
         if (item === "관리자페이지") {

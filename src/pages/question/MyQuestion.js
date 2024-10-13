@@ -4,6 +4,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import { useAuth } from '../../auth/AuthContext';
 import axios from 'axios'
 
 const MyQuestionInfo = ({ currentPage, totalItems, paginatedData }) => {
@@ -87,6 +88,7 @@ const MyQuestion = () => {
     const [totalPage, setTotalPage] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
+    const { accessToken, userInfo } = useAuth();  
 
     const searchPosts = async () => {
         try {
@@ -112,8 +114,27 @@ const MyQuestion = () => {
     };
 
     useEffect(() => {
-        searchPosts();
-    }, [currentPage]);
+        const fetchUserInfo = async () => {
+            if (!accessToken) {
+                console.log('No access token available');
+                return;
+            }
+
+            const loginType = localStorage.getItem('loginType');
+            console.log('Login Type:', loginType);
+
+            // 관리자가 아닐 때만 요청을 보냄
+            if (loginType === 'ADMIN') {
+                console.log('관리자이므로 get 요청을 보내지 않습니다.');
+                return;
+            }
+
+            // 관리자가 아닐 때 질문 조회 요청 실행
+            searchPosts();
+        };
+
+        fetchUserInfo();
+    }, [currentPage, accessToken]);
 
     const handleNavigation = (item) => {
         if (item === "내질문조회") {
@@ -130,12 +151,23 @@ const MyQuestion = () => {
         }
     };
 
+    const loginType = localStorage.getItem('loginType');
+
     return (
         <div className="app">
             <Header />
             <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            <MyQuestionInfo currentPage={currentPage} totalItems={totalItems} paginatedData={paginatedData} />
-            <Pagination curruntpage={currentPage} totalpage={totalPage} onPageChange={handlePageChange} />
+            {loginType === 'ADMIN' ? (
+            <div className="admin-message">
+                관리자는 이용할 수 없습니다.
+                <br/>관리자 페이지의 문의내역 게시판을 확인해주세요.
+            </div>
+        ) : (
+            <>
+                <MyQuestionInfo currentPage={currentPage} totalItems={totalItems} paginatedData={paginatedData} />
+                <Pagination currentPage={currentPage} totalPages={totalPage} onPageChange={handlePageChange} />
+            </>
+        )}
             <Footer />
         </div>
     );

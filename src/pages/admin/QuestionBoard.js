@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
-// import './MemberHistory.css';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import axios from 'axios';
+import { useAuth } from '../../auth/AuthContext';
 
-const ConfirmQuestion = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        questionId: i + 1,
-        questionTitle: `이런거 저런거 궁금한데 질문입니다. ${i + 1}`,
-        status: i % 2 === 0 ? '답변완료' : '답변대기중',
-        questionDate: `2024.10.${(i % 30) + 1}`,
-        questionContent: `이런거 저런거 궁금한데 질문입니다. 도대체 여기는 뭐하는 곳이죠?.`
-    })).reverse();
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+const ConfirmQuestion = ({ totalItems, paginatedData }) => {
     const navigate = useNavigate();
+    // const startIndex = (currentPage - 1) * itemsPerPage;
+    // const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="memberHistory">
@@ -43,7 +35,7 @@ const ConfirmQuestion = ({ currentPage, itemsPerPage, totalItems }) => {
                 ))}
             </div>
         </div>
-    )
+    );
 };
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -88,10 +80,48 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 const QuestionBoard = () => {
     const navigate = useNavigate();
+    const { accessToken } = useAuth();
     const itemsPerPage = 10;
-    const totalItems = 47;
+    const [totalItems, setTotalItems] = useState(0);
+    const [paginatedData, setPaginatedData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    useEffect(() => {
+        const fetchQuestions = async () => {
+            try {
+                const response = await axios.get(process.env.REACT_APP_apiHome + 'questions', {
+                    params: {
+                        page: currentPage,
+                        size: itemsPerPage,
+                        sort: 'questionId_desc', // questionId로 기본 정렬
+                    },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+    
+                let fetchedData = response.data.data;
+    
+                // `questionStatus`가 'PENDING'인 항목을 우선 정렬
+                const sortedData = fetchedData.sort((a, b) => {
+                    if (a.questionStatus === 'PENDING' && b.questionStatus !== 'PENDING') {
+                        return -1;
+                    } else if (a.questionStatus !== 'PENDING' && b.questionStatus === 'PENDING') {
+                        return 1;
+                    }
+                    return b.questionId - a.questionId; // 그 외에는 questionId로 내림차순 정렬
+                });
+    
+                setPaginatedData(sortedData);
+                setTotalItems(response.data.pageInfo.totalElements); // 전체 아이템 개수를 상태로 설정
+            } catch (error) {
+                console.error('질문 데이터를 가져오는데 실패했습니다:', error);
+            }
+        };
+    
+        fetchQuestions();
+    }, [currentPage, accessToken]);
 
     const handleNavigation = (item) => {
         if (item === "관리자페이지") {
@@ -124,7 +154,7 @@ const QuestionBoard = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
-            <ConfirmQuestion currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <ConfirmQuestion currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} paginatedData={paginatedData} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>
