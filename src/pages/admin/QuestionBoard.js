@@ -11,6 +11,33 @@ const ConfirmQuestion = ({ totalItems, paginatedData }) => {
     // const startIndex = (currentPage - 1) * itemsPerPage;
     // const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
 
+    // 답변대기중, 답변완료로 출력변경
+    const getQuestionStatusText = (status) => {
+        if (status === 'PENDING') {
+            return '답변 대기중';
+        } else if (status === 'ANSWERED') {
+            return '답변 완료';
+        } else {
+            return status; // 다른 상태가 있는 경우 그대로 출력
+        }
+    };
+
+    
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월을 2자리로 맞춤
+        const day = String(date.getDate()).padStart(2, '0'); // 일을 2자리로 맞춤
+        const hours = String(date.getHours()).padStart(2, '0'); // 시를 2자리로 맞춤
+        const minutes = String(date.getMinutes()).padStart(2, '0'); // 분을 2자리로 맞춤
+        const seconds = String(date.getSeconds()).padStart(2, '0'); // 초를 2자리로 맞춤
+        const formattedDate = `${year}-${month}-${day}`;
+        const formattedTime = `${hours}:${minutes}:${seconds}`;
+        
+        return `${formattedDate} ${formattedTime}`;
+
+    };
+
     return (
         <div className="memberHistory">
             <h3 className="history-title">문의 내역</h3>
@@ -18,6 +45,7 @@ const ConfirmQuestion = ({ totalItems, paginatedData }) => {
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
                     <div className="header-number"> 번호 </div>
+                    <div className="header-date"> 작성자 </div>
                     <div className="header-history"> 문의 제목 </div>
                     <div className="header-type"> 문의 날짜 </div>
                     <div className="header-date"> 답변 상태 </div>
@@ -28,9 +56,10 @@ const ConfirmQuestion = ({ totalItems, paginatedData }) => {
                     onClick={() => navigate('/admin/question/info', { state: { item } })}
                     >   
                         <div className="header-number"> {item.questionId} </div>
+                        <div className="header-date"> {item.name} </div>
                         <div className="header-history"> {item.questionTitle} </div>
-                        <div className="header-date"> {item.questionDate} </div>
-                        <div className="header-type"> {item.status} </div>
+                        <div className="header-date"> {formatDate(item.questionDate)} </div>
+                        <div className="header-type"> {getQuestionStatusText(item.questionStatus)} </div>
                     </div>
                 ))}
             </div>
@@ -103,17 +132,9 @@ const QuestionBoard = () => {
     
                 let fetchedData = response.data.data;
     
-                // `questionStatus`가 'PENDING'인 항목을 우선 정렬
-                const sortedData = fetchedData.sort((a, b) => {
-                    if (a.questionStatus === 'PENDING' && b.questionStatus !== 'PENDING') {
-                        return -1;
-                    } else if (a.questionStatus !== 'PENDING' && b.questionStatus === 'PENDING') {
-                        return 1;
-                    }
-                    return b.questionId - a.questionId; // 그 외에는 questionId로 내림차순 정렬
-                });
+                const pendingQuestions = fetchedData.filter(item => item.questionStatus === 'PENDING');
     
-                setPaginatedData(sortedData);
+                setPaginatedData(pendingQuestions);
                 setTotalItems(response.data.pageInfo.totalElements); // 전체 아이템 개수를 상태로 설정
             } catch (error) {
                 console.error('질문 데이터를 가져오는데 실패했습니다:', error);
