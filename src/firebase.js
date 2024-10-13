@@ -1,11 +1,9 @@
-// Import the functions you need from the SDKs you need
+// firebase.js 파일
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getMessaging, getToken } from 'firebase/messaging';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase 웹 앱 설정
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_apiKey,
   authDomain: process.env.REACT_APP_authDomain,
@@ -16,6 +14,26 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_measurementId
 };
 
-// Initialize Firebase
+// Firebase 초기화
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const messaging = getMessaging(app);
+
+// FCM 토큰을 가져오는 함수
+export const getFCMToken = async () => {
+  try {
+    const currentToken = await getToken(messaging, { vapidKey: process.env.REACT_APP_fcmapikey });
+    if (currentToken) {
+      console.log('FCM 토큰:', currentToken);
+      return currentToken;
+    } else {
+      console.log('FCM 토큰을 가져올 수 없습니다.');
+      return null;
+    }
+  } catch (error) {
+    console.error('FCM 토큰 가져오기 오류:', error);
+    return null;
+  }
+};
+
+export { app, analytics, messaging };

@@ -1,8 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginModal.css';
 import axios from 'axios';
 import { AuthContext } from '../auth/AuthContext';
+import { getFCMToken } from '../firebase'; // FCM 토큰을 가져오는 함수
 
 // LoginModal 컴포넌트는 로그인 화면을 보여주는 모달창 역할을 합니다.
 const LoginModal = ({ onClose }) => {
@@ -36,18 +37,18 @@ const LoginModal = ({ onClose }) => {
 
     const handleLogin = async () => {
         if (isLoading) return; // 이미 로그인 중이면 중복으로 실행하지 않음
-    
+
         setIsLoading(true); // 로그인 시도 중이므로 로딩 상태로 설정
         try {
             // 입력된 값이 이메일 형식이면 guardian(사용자), 그렇지 않으면 admin(관리자)으로 로그인 타입을 설정합니다.
             const loginType = isValidEmail(email) ? 'guardian' : 'admin';
-    
+
             // 로그인에 필요한 데이터를 준비합니다.
             const loginData = {
                 password: password, // 입력된 비밀번호
                 [loginType === 'guardian' ? 'email' : 'adminCode']: email // 로그인 타입에 맞는 이메일 또는 관리자 코드
             };
-    
+
             // 서버에 로그인 요청을 보냅니다.
             const response = await axios.post(
                 process.env.REACT_APP_apiHome + `auth/login`, // 로그인 API 경로
@@ -59,7 +60,7 @@ const LoginModal = ({ onClose }) => {
                     withCredentials: true // 쿠키와 함께 요청을 보냄 (인증 정보 저장을 위해)
                 }
             );
-    
+
             // 서버에서 받은 인증 토큰을 저장합니다.
             let token = response.headers['authorization'];
 
@@ -73,13 +74,34 @@ const LoginModal = ({ onClose }) => {
                 // 서버에서 받은 사용자 정보를 가져옵니다.
                 const userId = response.data ? response.data.userId : email; // 사용자 ID를 응답에서 받아옵니다.
                 const loginType = response.data? response.data.loginType[0]?.authority : "ADMIN"; // 권한 정보 (예: GUARDIAN 또는 ADMIN)
-                
+
                 localStorage.setItem('loginType', loginType); // 로그인 타입 저장
                 localStorage.setItem('userId', userId); // 사용자 ID 저장
 
                 // 로그인 상태를 업데이트합니다.
                 login(token, { loginType, userId });
-    
+
+                // FCM 토큰을 가져와서 서버에 전송 (로그인 성공 후)
+                if (loginType === 'ADMIN') {
+                    try {
+                        const fcmToken = await getFCMToken();
+                        if (fcmToken) {
+                            await axios.post(
+                                process.env.REACT_APP_apiHome + 'admins/fcm-token',
+                                { fcmToken: fcmToken },
+                                {
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                    },
+                                }
+                            );
+                            console.log('FCM 토큰이 서버에 성공적으로 전송되었습니다.');
+                        }
+                    } catch (error) {
+                        console.error('FCM 토큰 전송 오류:', error);
+                    }
+                }
+
                 // 로그인 성공 시 모달을 닫고, 관리자면 관리자 대시보드로, 그렇지 않으면 메인 페이지로 이동합니다.
                 closeModal();
                 navigate(loginType === 'ADMIN' ? '/' : '/');

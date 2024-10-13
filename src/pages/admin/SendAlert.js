@@ -131,7 +131,7 @@ const AdminAlert = () => {
                     <div className='signup-input-line'>
                         <div className="alert-title">수신인</div>
                         <CustomDropdown
-                            options={['전체', '보호자', '대상자']}
+                            options={['전체', '관리자', '대상자']}
                             selected={recipient}
                             onSelect={setRecipient}
                             className="recipient-dropdown"
