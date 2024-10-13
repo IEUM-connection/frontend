@@ -424,7 +424,7 @@ const RequestContainer = () => {
     }, [accessToken]);
 
     if (!guardianInfo) {
-        return <div>로딩 중...</div>; // 보호자 정보 로딩 중일 때 표시
+        return <div className="admin-message">관리자는 관리자 페이지를 이용해주세요.</div>; // 보호자 정보 로딩 중일 때 표시
     }
 
     return (
@@ -689,6 +689,7 @@ const RequestContainer = () => {
 
 const RequestPage = () => {
     const navigate = useNavigate();
+    const loginType = localStorage.getItem('loginType');
 
     const handleNavigation = (item) => {
         if (item === "변경이력조회") {
@@ -700,9 +701,11 @@ const RequestPage = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["서비스신청"]} onNavigate={handleNavigation}/>
-            <div className="signup-logo">
-                <img src="/image/logo-text.png" alt="메인로고" />
-            </div>
+            {loginType !== 'ADMIN' && (
+                <div className="signup-logo">
+                    <img src="/image/logo-text.png" alt="메인로고" />
+                </div>
+            )}
             <RequestContainer/>
             <Footer />
         </div>

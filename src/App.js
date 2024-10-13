@@ -5,6 +5,7 @@ import SignupPage from './pages/login/SignupPage';
 import MemberMap from './components/map/MemberMap';
 import RequestPage from './pages/service_request/RequestPage';
 import MyPage from './pages/mypage/MyPage';
+import ModifyMyInfo from './pages/mypage/ModifyMyInfo';
 import ServicePage from './pages/question/ServicePage';
 import AdminPage from './pages/admin/AdminPage';
 import MemberHistory from './pages/mypage/MemberHistory';
@@ -32,6 +33,7 @@ const App = () => {
               <Route path="/membermap" element={<MemberMap />}/>
               <Route path="/request" element={<RequestPage />}/>
               <Route path="/mypage" element={<MyPage />}/>
+              <Route path="/mypage/modify" element={<ModifyMyInfo/>}/>
               <Route path="/service" element={<ServicePage />}/>
               <Route path="/admin" element={<ProtectedRoute element={<AdminPage/>} />} />
               <Route path="/history" element={<MemberHistory/>} />
@@ -39,7 +41,7 @@ const App = () => {
               <Route path="/myquestion" element={<MyQuestion/>}/>
               <Route path="/myquestion/detail" element={<MyQuestionDetail/>}/>
               <Route path="/fna-detail/:id" element={<FnaPage/>}/>
-              <Route path="/admin/serviceRequest" element={<ProtectedRoute element={<ServiceRequestDetail/>}/>}/>
+              <Route path="/admin/serviceRequest/:memberId" element={<ProtectedRoute element={<ServiceRequestDetail />} />} />
               <Route path="/admin/sendAlert" element={<ProtectedRoute element={<SendAlert/>}/>}/>
               <Route path="/admin/question" element={<ProtectedRoute element={<QuestionBoard/>}/>}/>
               <Route path="/admin/question/info" element={<ProtectedRoute element={<QuestionInfo/>}/>}/>

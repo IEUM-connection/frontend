@@ -84,9 +84,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 const MemberHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 47; // Example total items
+    const [totalItems, setTotalItems] = useState(0); 
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    const loginType = localStorage.getItem('loginType');
 
     const handleNavigation = (item) => {
         if (item === "마이페이지") {
@@ -104,8 +105,16 @@ const MemberHistory = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["마이페이지", "변경이력조회"]} onNavigate={handleNavigation} />
-            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            {loginType !== 'ADMIN' ? (
+                <>
+                    <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                </>
+            ) : (
+                <div className="admin-message">
+                    관리자는 관리자 페이지를 이용해주세요.
+                </div>
+            )}
             <Footer />
         </div>
     );

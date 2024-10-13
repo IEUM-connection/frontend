@@ -2,94 +2,104 @@ import React, { useState, useEffect } from 'react';
 import './ServiceRequestDetail.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom'; // useParams 추가
 import HeaderBottom from '../../components/HeaderBottom';
 import { useAuth } from '../../auth/AuthContext';
 import axios from 'axios';
 
-const ShowInfo = ( { } ) => {
-    const navigate=useNavigate();
-    const [currentTime, setCurrentTime] = useState('');
-    const location = useLocation();
-    const { item } = location.state || {};
-    const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
+const ShowInfo = () => {
+    const navigate = useNavigate();
+    const { memberId } = useParams(); // useParams로 URL에서 memberId 추출
+    const { accessToken } = useAuth(); // 인증 토큰 가져오기
     const [guardianInfo, setGuardianInfo] = useState(null);
     const [memberInfo, setMemberInfo] = useState(null);
-    const [status, setStatus] = useState('AWAITING_APPROVAL');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
+    console.log(`Extracted memberId: ${memberId}`);
+   
     useEffect(() => {
-        const now = new Date();
-        const formattedTime = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        setCurrentTime(formattedTime);
-    }, []);
+        const fetchMemberInfo = async () => {
+            if (!accessToken || !memberId) {
+                setLoading(false);
+                return;
+            }
 
+            try {
+                const response = await axios.get(
+                     `${process.env.REACT_APP_apiHome}members/${memberId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+                console.log('API Response:', response.data);
+                setMemberInfo(response.data.data);
+                
+                 // 멤버 정보에서 guardianId 추출 후 가디언 정보 가져오기
+                 const guardianId = response.data.data.guardianId;
+                 if (guardianId) {
+                     const guardianResponse = await axios.get(
+                         `${process.env.REACT_APP_apiHome}guardians/${guardianId}`,
+                         {
+                             headers: {
+                                 Authorization: `Bearer ${accessToken}`,
+                             },
+                         }
+                     );
+                     console.log('Guardian API Response:', guardianResponse.data);
+                     setGuardianInfo(guardianResponse.data.data);
+                 }
+ 
+                 setLoading(false);
+             } catch (err) {
+                 console.error('Error fetching member or guardian info:', err);
+                 setError(err);
+                 setLoading(false);
+             }
+         };
+ 
+         fetchMemberInfo();
+     }, [accessToken, memberId]);
 
     const handleApprove = async () => {
         try {
-            const response = await axios.patch(process.env.REACT_APP_apiHome + `members/${item.serviceId}/approve`, {}, {
-            headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            alert('승인이 완료되었습니다.');
-            navigate('/admin');
+            const response = await axios.patch(
+                `${process.env.REACT_APP_apiHome}members/${memberId}/approve`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            console.log('승인 성공:', response.data);
+            alert('승인이 완료되었습니다.'); // 성공 시 alert
+            navigate('/admin'); // 승인 후 관리자 페이지로 이동
         } catch (error) {
             console.error('승인 실패:', error);
-            alert('승인 중 오류가 발생했습니다.');
+            alert('승인에 실패했습니다.'); // 실패 시 alert
+            setError(error);
         }
     };
 
-    useEffect(() => {
-        const fetchGuardianInfo = async () => {
-            try {
-                const response = await axios.get(
-                    process.env.REACT_APP_apiHome + `guardians`,
-                    {   
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    }
-                );
-                setGuardianInfo(response.data.data);
-            } catch (error) {
-                console.error('보호자 정보 가져오기 실패:', error);
-            }
-        };
-    
-        const fetchMemberInfo = async () => {
-            try {
-                const response = await axios.get(process.env.REACT_APP_apiHome + `members/status/${status}`,
-                    {
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    }
-                );
-                setMemberInfo(response.data.data);
-            } catch (error) {
-                console.error('member 정보 가져오기 실패:', error);
-            }
-        };
-    
-        if (accessToken) {
-            fetchGuardianInfo();
-            fetchMemberInfo();
-        }
-    }, [accessToken]);
-    
-    if (!memberInfo || !guardianInfo) {
-        return <div>로딩 중...</div>;
-    }
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
 
     return (
         <div className="MyPage-signup-wrap">
             <div className="applicant-info">
                 <div className="search-container">
                     <h3>대상자 정보</h3>
-                    <div className='request-number'>no.{item?.serviceId || ''}</div>
+                    <div className='request-number'>no.{memberInfo.memberId}</div>
                 </div>
                 <div className="signup-container">
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">이름</div>
                         <div className="applicant-info-content">{memberInfo.name}</div>
-                        <div className="applicant-info-title">생년월일</div>
-                        <div className="applicant-info-content">{memberInfo.birthDate}</div>
+                        <div className="applicant-info-title">사용자 코드</div>
+                        <div className="applicant-info-content">{memberInfo.memberCode}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">주소</div>
@@ -131,31 +141,31 @@ const ShowInfo = ( { } ) => {
                 <div className="signup-container">
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">이름</div>
-                        <div className="applicant-info-content">{guardianInfo.name}</div>
+                        <div className="applicant-info-content">{guardianInfo?.name}</div>
                         <div className="applicant-info-title">생년월일</div>
-                        <div className="applicant-info-content">{guardianInfo.birthDate}</div>
+                        <div className="applicant-info-content">{guardianInfo?.birthDate}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">이메일</div>
-                        <div className="applicant-info-content">{guardianInfo.email}</div>
+                        <div className="applicant-info-content">{guardianInfo?.email}</div>
                         <div className="applicant-info-title">가입일자</div>
-                        <div className="applicant-info-content">{guardianInfo.createdAt}</div>
+                        <div className="applicant-info-content">{guardianInfo?.createdAt}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">주소</div>
-                        <div className="applicant-info-content">{guardianInfo.address}</div>
+                        <div className="applicant-info-content">{guardianInfo?.address}</div>
                         <div className="applicant-info-title">상세주소</div>
-                        <div className="applicant-info-content">{guardianInfo.detailedAddress}</div>
+                        <div className="applicant-info-content">{guardianInfo?.detailedAddress}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">휴대전화번호</div>
                         <div className="applicant-info-content">{guardianInfo.phone}</div>
                         <div className="applicant-info-title">일반전화번호</div>
-                        <div className="applicant-info-content">{guardianInfo.tel || '없음'}</div>
+                        <div className="applicant-info-content">{guardianInfo?.tel || '없음'}</div>
                     </div>
                 </div>
             </div>
-            <button className="signup-submit" onClick={handleApprove} >승인</button>
+            <button className="signup-submit" onClick={handleApprove}>승인</button>
         </div>
     );
 };
@@ -188,7 +198,7 @@ const ServiceRequestDetail = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
-            <ShowInfo/>
+            <ShowInfo />
             <Footer />
         </div>
     );

@@ -13,12 +13,14 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리용
     const { accessToken, userInfo, isAuthenticated, logout } = useAuth();  // useAuth()로 수정
     const [userDetails, setUserDetails] = useState(null); 
+    const [loginType, setLoginType] = useState(''); 
     const navigate = useNavigate();
 
     useEffect(() => {
         console.log('User Info:', userInfo);  // loginType 확인
         if (userInfo) {
             setIsLoggedIn(true);
+            setLoginType(localStorage.getItem('loginType')); 
         } else {
             setIsLoggedIn(false);
         }
@@ -73,13 +75,9 @@ const Header = () => {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
 
-                console.log('API Response:', response.data);
-
                 if (response.data && response.data.data) {
                     setUserDetails(response.data.data);
-                    console.log('User Details set:', response.data.data);
                 } else {
-                    console.error('Invalid response format:', response.data);
                 }
             } catch (error) {
                 console.error('정보 가져오기 실패:', error.response ? error.response.data : error.message);
@@ -88,8 +86,6 @@ const Header = () => {
 
         fetchUserInfo();
     }, [accessToken]);
-
-    console.log('Current userDetails:', userDetails);
 
     return (
         <div className="header-container">
@@ -100,7 +96,9 @@ const Header = () => {
                 <div className="header-navigation" onClick={() => navigate('/request')}> 서비스 신청 </div>
                 <div className="header-navigation" onClick={() => navigate('/mypage')}> 마이페이지 </div>
                 <div className="header-navigation" onClick={() => navigate('/service')}> 고객센터 </div>
-                <div className="header-navigation" onClick={() => navigate('/admin')}> 관리자페이지 </div>
+                {loginType === 'ADMIN' && (
+                    <div className="header-navigation" onClick={() => navigate('/admin')}> 관리자페이지 </div>
+                )}
             </div>
             {isLoggedIn ? (
                     <div className="user-info-container">
