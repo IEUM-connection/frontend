@@ -41,6 +41,40 @@ const CustomDropdown = ({ options, selected, onSelect, className }) => {
     );
 };
 
+const CustomDropdown2 = ({ options, selected, onSelect, className }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const handleSelect = (option) => {
+        onSelect(option);
+        setIsOpen(false);
+    };
+
+    return (
+        <div className={`custom-dropdown2 ${className}`}>
+            <div 
+                className="custom-dropdown3-selected" 
+                onClick={() => setIsOpen(!isOpen)}
+            >
+              <div className="dropdown-title">{selected.split('▼')[0]}</div>
+              <div className="dropdown-arrow2">▼</div>
+            </div>
+            {isOpen && (
+                <ul className="custom-dropdown3-options">
+                    {options.map((option, index) => (
+                        <li 
+                            key={index} 
+                            className={`custom-option2 custom-option-${option.toLowerCase()}`} 
+                            onClick={() => handleSelect(option)}
+                        >
+                            {option}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
+
 const CustomModal = ({ isOpen, onClose, onSubmit }) => {
     const [inputValue, setInputValue] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -81,6 +115,68 @@ const CustomModal = ({ isOpen, onClose, onSubmit }) => {
                     className="signup-input"
                 />
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
+            </div>
+        </div>
+    );
+};
+
+const VerificationModal = ({ isOpen, onClose, timer, handleCompleteVerification, errorMessage }) => {
+    const [remainingTime, setRemainingTime] = useState(timer);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        setRemainingTime(timer);
+
+        const countdown = setInterval(() => {
+            setRemainingTime((prev) => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(countdown);
+    }, [isOpen, timer]);
+
+    if (!isOpen) return null;
+
+    let timeStyle = { color: '#000000' };
+    if (remainingTime <= 10) {
+        timeStyle = { color: '#FF0000' };
+    } else if (remainingTime <= 20) {
+        timeStyle = { color: '#FF7700' };
+    } else if (remainingTime <= 30) {
+        timeStyle = { color: '#B2641C' };
+    } else if (remainingTime <= 40) {
+        timeStyle = { color: '#750404' };
+    }
+    
+    const blinkingClass = remainingTime <= 10 ? 'blinking' : '';
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-line">
+                    <div className="modal-logo">
+                        <img src="/image/logo-text.png" alt="메인로고" />
+                    </div>
+                    {errorMessage ? (
+                        <div className="modal-text2">{errorMessage}</div>
+                    ) : (
+                        <div className="modal-text1">휴대폰 본인 인증 요청을 완료해주세요.
+                             <div className={`modal-text2 ${blinkingClass}`} style={timeStyle}>
+                                남은 시간: {remainingTime}초
+                            </div>
+                        </div>
+                    )}
+                    <div className="modal-buttons">
+                        <button 
+                            className="modal-button" 
+                            onClick={handleCompleteVerification} 
+                            disabled={remainingTime === 0 || !!errorMessage}
+                        >
+                            인증 완료
+                        </button>
+                        <button className="modal-button" onClick={onClose}>닫기</button>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -152,7 +248,7 @@ const RequestContainer = () => {
     const [guardianInfo, setGuardianInfo] = useState(null);
     const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
     const [residentNumber, setResidentNumber] = useState('');
-    const [detailAddress, setdetialAddress] = useState('');
+    const [detailedAddress, setDetialedAddress] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [medicalHistory, setMedicalHistory] = useState('');
     const [notes, setNotes] = useState('');
@@ -161,6 +257,25 @@ const RequestContainer = () => {
     const [emergencyContact, setEmergencyContact] = useState('');
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(''); 
     const [documentAttachment, setDocumentAttachment] = useState('');
+    const [selectedCarrier, setSelectedCarrier] = useState('통신사');
+    const [residentNumberLeft, setResidentNumberLeft] = useState(''); // 왼쪽 6자리
+    const [residentNumberRight, setResidentNumberRight] = useState('');
+    const [loading, setLoading] = useState(false); // 로딩 상태 관리
+    const [verificationCompleted, setVerificationCompleted] = useState(false); // 인증 완료 상태 관리
+    const [error, setError] = useState(''); // 오류 메시지 관리
+    const [verificationModalOpen, setVerificationModalOpen] = useState(false);
+    const [timeoutId, setTimeoutId] = useState('');
+    const [passVerified, setPassVerified] = useState(false);
+    const [remainingTime, setRemainingTime] = useState(60);
+    const telecomOptions = ['SKT', 'KT', 'LG U+', '알뜰폰SKT', '알뜰폰KT', '알뜰폰LGU+'];
+    const telecomMap = {
+        'SKT': 0,
+        'KT': 1,
+        'LG U+': 2,
+        '알뜰폰SKT': 3,
+        '알뜰폰KT': 4,
+        '알뜰폰LGU+': 5
+    };
 
     let formData = new FormData();
 
@@ -197,6 +312,50 @@ const RequestContainer = () => {
         formData = new FormData();
         setFile(null);
     };
+
+    const handleResidentNumberLeftChange = (e) => {
+        const value = e.target.value;
+    
+        // 입력값의 길이가 6자리일 때만 유효성 검사
+        if (value.length <= 6) {
+            setResidentNumberLeft(value); // 우선 입력된 값을 설정
+    
+            // 입력이 완료된 6자리일 경우에만 유효성 검사를 진행
+            if (value.length === 6) {
+                // 연도 부분 (앞 두자리)
+                const year = value.slice(0, 2);
+                // 월 부분 (가운데 두자리)
+                const month = value.slice(2, 4);
+                // 일 부분 (뒤 두자리)
+                const day = value.slice(4, 6);
+    
+                // 유효성 검사
+                const isValidYear = /^\d{2}$/.test(year); // 연도는 숫자 두 자리
+                const isValidMonth = /^0[1-9]|1[0-2]$/.test(month); // 월은 01~12까지만 허용
+                const isValidDay = /^0[1-9]|[12][0-9]|3[01]$/.test(day); // 일은 01~31까지만 허용
+    
+                // 생년월일 유효성 확인
+                if (!isValidYear || !isValidMonth || !isValidDay) {
+                    // 유효하지 않은 경우 알림 처리
+                    alert('올바른 생년월일 형식으로 입력해주세요.');
+                    setResidentNumberLeft(''); // 유효하지 않은 경우 입력 초기화
+                }
+            }
+        }
+    };
+
+    const handleSubmit = () => {
+        const fullResidentNumber = `${residentNumberLeft}-${residentNumberRight}`;
+        // fullResidentNumber를 사용하여 서버에 전송하는 로직 작성
+    };
+    
+    const handleResidentNumberRightChange = (e) => {
+        const value = e.target.value;
+        if (value.length <= 7) { // 오른쪽은 최대 7자리
+            setResidentNumberRight(value);
+        }
+    };
+
 
     // 체크박스 개별 선택하기
     const selectChecked = (checked, id) => {
@@ -376,7 +535,7 @@ const RequestContainer = () => {
     const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
 
     const handleDetailAddressChange = (e) => {
-        setdetialAddress(e.target.value);
+        setDetialedAddress(e.target.value);
     };
 
     const handleJoinButton = async () => {
@@ -400,12 +559,11 @@ const RequestContainer = () => {
                             name: name.trim(),
                             phone: phoneNumber.trim(),
                             tel: homeNumber.trim(),
-                            address: address.trim(),   // 도로명 주소 사용
-                            detailAddress: detailAddress.trim(),
+                            address: address.trim(),
+                            detailedAddress: detailedAddress.trim(),
                             postalCode: postalCode.trim(),
                             age: age,
                             relationship: relationship,
-                            documentAttachment: file,
                             milkDeliveryRequest: milkDeliveryRequest,
                             notes: notes,
                             residentNumber: residentNumber,
@@ -449,6 +607,131 @@ const RequestContainer = () => {
         }
     }, [accessToken]);
 
+
+    useEffect(() => {
+        let interval;
+        if (verificationModalOpen && remainingTime > 0) {
+            interval = setInterval(() => {
+                setRemainingTime((prevTime) => prevTime - 1);
+            }, 1000);
+        } else if (remainingTime === 0) {
+            setError(
+                <div className="error-message-modal">
+                    본인 인증에 실패했습니다.<br />
+                    1분 내에 인증이 완료되지 않았습니다.
+                </div>
+            );
+            // setVerificationModalOpen(false);
+        }
+        return () => clearInterval(interval);
+    }, [verificationModalOpen, remainingTime]);
+
+    const handleIdentityVerification = async () => {
+        if (!name.trim()) {
+            alert('이름을 입력해주세요.');
+            return;
+        }
+    
+        if (selectedCarrier === '통신사 선택') {
+            alert('통신사를 선택해주세요.');
+            return;
+        }
+    
+        if (!phoneNumber.trim()) {
+            alert('휴대전화번호를 입력해주세요.');
+            return;
+        }
+    
+        if (!residentNumberLeft || !residentNumberRight) {
+            alert('주민등록번호를 입력해주세요.');
+            return;
+        }
+    
+        const residentNumber = `${residentNumberLeft}${residentNumberRight}`;
+        const telecomValue = telecomMap[selectedCarrier];
+    
+        try {
+            setLoading(true);
+            setError('');
+            setVerificationModalOpen(true);
+            setRemainingTime(60);
+            setPassVerified(false);
+
+            const passResponse = await axios.post(
+                process.env.REACT_APP_apiHome + 'api/identity/verify',
+                null,
+                {
+                    params: {
+                        name: name.trim(),
+                        phoneNo: phoneNumber.trim(),
+                        identity: residentNumber.trim(),
+                        telecom: telecomValue
+                    },
+                },
+            );
+
+            console.log('패스 응답 데이터: ', passResponse.data);
+
+            // 첫 번째 인증이 성공했는지 확인
+            if (passResponse.status === 200) {
+                setPassVerified(true);
+            } else {
+                throw new Error('인증 요청 실패');
+            }
+
+            } catch (error) {
+                setError('본인 인증에 실패했습니다. 다시 시도해주세요.');
+                // setVerificationModalOpen(false);
+                console.log("error", error);
+            } finally {
+                setLoading(false);
+        }
+    };
+
+
+            // 2단계: 패스 인증 성공 후 추가 POST 요청
+    const handleCompleteVerification = async () => { 
+
+        if (!passVerified) {
+            setError('패스 인증이 완료되지 않았습니다.');
+            return;
+        }
+        
+        const telecomValue = telecomMap[selectedCarrier]; 
+        const residentNumber = `${residentNumberLeft}${residentNumberRight}`;
+          
+        try {
+            const postResponse = await axios.post(
+                process.env.REACT_APP_apiHome + 'api/identity/add-verify',
+                null,
+                {
+                    params: {
+                        name: name.trim(),
+                        phoneNo: phoneNumber.trim(),
+                        identity: residentNumber.trim(),
+                        telecom: telecomValue
+                    },
+                },
+            );
+
+            console.log("postResponse:", postResponse); // 응답 확인
+
+             // postResponse.data.response를 JSON 파싱
+            const parsedResponse = JSON.parse(postResponse.data.response);
+            console.log("Parsed response:", parsedResponse);
+
+            if (parsedResponse.result && parsedResponse.result.code === "CF-00016") {
+                alert('본인 인증이 완료되었습니다.');
+                setVerificationModalOpen(false);
+            } else {
+                throw new Error('본인 인증에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error("에러 발생:", error);  // 에러 확인
+            setError('인증 중 오류가 발생했습니다.');
+        }
+    };
+
     if (!guardianInfo) {
         return <div className="admin-message">관리자는 관리자 페이지를 이용해주세요.</div>; // 보호자 정보 로딩 중일 때 표시
     }
@@ -471,14 +754,67 @@ const RequestContainer = () => {
                 </div>
                 <div className='signup-input-line'>
                     <div className="signup-title">주민등록번호</div>
-                    <div className="signup-input-box">
+                    <div className="signup-input-box-verify">
                     <input
-                            className="signup-input"
-                            value={residentNumber}
-                            onChange={handleResidentNumberChange}
+                            className="signup-input-verify-left"
+                            value={residentNumberLeft}
+                            onChange={handleResidentNumberLeftChange}
+                        /> -
+                    <input
+                            type="password"
+                            className="signup-input-verify-right"
+                            value={residentNumberRight}
+                            onChange={handleResidentNumberRightChange}
                         />
                     </div>
-                    <button className="search-email" >본인 인증</button>
+                </div>
+                <div className='signup-input-line'>
+                    <div className="signup-title">휴대전화번호</div>
+                    <div className="signup-input-box">
+                        <div className="signup-input-box-phone">
+                            <CustomDropdown2
+                                options={['SKT', 'KT', 'LG U+', '알뜰폰SKT', '알뜰폰KT', '알뜰폰LGU+']}
+                                selected={selectedCarrier}
+                                onSelect={setSelectedCarrier}
+                                className="carrier-dropdown"
+                            />
+                            <input className="signup-input-phone"
+                                value={phoneNumber}
+                                onBlur={handlePhoneNumberBlur}
+                                onChange={handlePhoneNumberChange}
+                            />
+                        </div>
+                        <div className={`signup-guide ${phoneNumberError ? 'error' : ''}`}>
+                            {phoneNumberError || '예시: 010-1234-5678 또는 01012345678'}
+                        </div>
+                    </div>
+                    {/* 본인 인증 버튼 */}
+                    <button className="search-address" onClick={handleIdentityVerification} disabled={loading}>
+                        {loading ? '인증 진행 중...' : '본인 인증'}
+                    </button>
+                    
+                    {/* 인증 모달 */}
+                    <VerificationModal
+                        isOpen={verificationModalOpen}
+                        onClose={() => setVerificationModalOpen(false)}
+                        timer={60} // 1분 타이머
+                        handleCompleteVerification={handleCompleteVerification} 
+                        errorMessage={error} 
+                    />
+                </div>
+                <div className='signup-input-line'>
+                    <div className="signup-title">일반전화번호</div>
+                    <div className="signup-input-box">
+                         <input
+                            className="signup-input"
+                            value={homeNumber}
+                            onBlur={handleHomeNumberBlur}
+                            onChange={handleHomeNumberChange}
+                        />
+                        <div className={`signup-guide ${homeNumberError ? 'error' : ''}`}>
+                            {homeNumberError || '예시: 02-000-0000 / 빈칸도 허용합니다.'}
+                        </div>
+                    </div>
                 </div>
                 <div className='signup-input-line'>
                     <div className="signup-title">주소</div>
@@ -496,37 +832,10 @@ const RequestContainer = () => {
                     <div className="signup-input-box">
                         <input 
                             className="signup-input" 
-                            value={detailAddress} 
-                            onChange={handleDetailAddressChange} // 상세주소 입력 시 상태 업데이트
+                            value={detailedAddress} 
+                            onChange={handleDetailAddressChange}
                         />
                         <div className="signup-guide"></div>
-                    </div>
-                </div>
-                <div className='signup-input-line'>
-                    <div className="signup-title">휴대전화번호</div>
-                    <div className="signup-input-box">
-                        <input className="signup-input"
-                            value={phoneNumber}
-                            onBlur={handlePhoneNumberBlur}
-                            onChange={handlePhoneNumberChange}
-                        />
-                        <div className={`signup-guide ${phoneNumberError ? 'error' : ''}`}>
-                            {phoneNumberError || '예시: 010-1234-5678 또는 01012345678'}
-                        </div>
-                    </div>
-                </div>
-                <div className='signup-input-line'>
-                    <div className="signup-title">일반전화번호</div>
-                    <div className="signup-input-box">
-                         <input
-                            className="signup-input"
-                            value={homeNumber}
-                            onBlur={handleHomeNumberBlur}
-                            onChange={handleHomeNumberChange}
-                        />
-                        <div className={`signup-guide ${homeNumberError ? 'error' : ''}`}>
-                            {homeNumberError || '예시: 02-000-0000 / 빈칸도 허용합니다.'}
-                        </div>
                     </div>
                 </div>
                 <div className='signup-input-line'>

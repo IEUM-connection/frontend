@@ -71,7 +71,7 @@ const ShowInfo = () => {
                         <div className="applicant-info-title">주소</div>
                         <div className="applicant-info-content">{memberInfo?.address}</div>
                         <div className="applicant-info-title">상세주소</div>
-                        <div className="applicant-info-content">{memberInfo?.detailAddress}</div>
+                        <div className="applicant-info-content">{memberInfo?.detailedAddress}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">휴대전화번호</div>
