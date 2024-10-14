@@ -160,6 +160,7 @@ const RequestContainer = () => {
     const [longitude, setLongitude] = useState('');
     const [emergencyContact, setEmergencyContact] = useState('');
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(''); 
+    const [documentAttachment, setDocumentAttachment] = useState('');
 
     let formData = new FormData();
 
@@ -182,7 +183,7 @@ const RequestContainer = () => {
               }
             );
 
-            console.log(response.data);
+            setDocumentAttachment(response.data);
           } catch (error) {
             alert("파일 첨부에 실패했습니다. ")
           }
@@ -411,7 +412,8 @@ const RequestContainer = () => {
                             medicalHistory: medicalHistory,
                             latitude: latitude,
                             longitude: longitude,
-                            emergencyContact: emergencyContact
+                            emergencyContact: emergencyContact,
+                            documentAttachment : documentAttachment
                         },
                     { headers: { 
                         Authorization: `Bearer ${accessToken}` ,
