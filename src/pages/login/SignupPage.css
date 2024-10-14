@@ -60,6 +60,7 @@
 .signup-guide {
     font-size: 12px;
     margin-top: 4px;
+    margin-left: 2px;
 }
 
 .signup-guide.error {
