@@ -161,6 +161,7 @@ const RequestContainer = () => {
     const [emergencyContact, setEmergencyContact] = useState('');
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(''); 
 
+    let formData = new FormData();
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -169,8 +170,31 @@ const RequestContainer = () => {
         }
     };
 
-    const handleFileUploadClick = () => {
+    const handleFileUploadClick = async() => {
+        formData.append('multipartFile', file);
+        try {
+            const response = await axios.post(
+              process.env.REACT_APP_apiHome + 'document', formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              }
+            );
+
+            console.log(response.data);
+          } catch (error) {
+            alert("파일 첨부에 실패했습니다. ")
+          }
+    };
+
+    const handleFileFindClick = () => {
         fileInputRef.current.click();
+    };
+
+    const handleFileDeleteClick = () => {
+        formData = new FormData();
+        setFile(null);
     };
 
     // 체크박스 개별 선택하기
@@ -577,7 +601,14 @@ const RequestContainer = () => {
                             accept=".jpg, .jpeg, .png, .pdf, .hwp"
                         />
                     </div>
-                    <button className="search-email" onClick={handleFileUploadClick}>첨부</button>
+                    {
+                       file !== null ? <button className="search-email" onClick={handleFileUploadClick}>업로드</button>
+                        : <button className="search-email" onClick={handleFileFindClick}>첨부</button> 
+                    }
+                    
+                    {
+                        <button className="search-email" onClick={handleFileDeleteClick}>삭제</button>
+                    }
                 </div>
                 <div className='signup-input-line'>
                     <div className="signup-title">대상자 특이사항</div>
