@@ -109,7 +109,7 @@ const ModifyApplicantInfo = ({ initialData, onSave }) => {
     const [name, setName] = useState(initialData.name || '');
     const [residentNumber, setResidentNumber] = useState(initialData.residentNumber || '');
     const [address, setAddress] = useState(initialData.address || '');
-    const [detailAddress, setDetailAddress] = useState(initialData.detailAddress || '');
+    const [detailedAddress, setDetailedAddress] = useState(initialData.detailAddress || '');
     const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber || '');
     const [homeNumber, setHomeNumber] = useState(initialData.homeNumber || '');
     const [age, setAge] = useState(initialData.age || '');
@@ -138,7 +138,7 @@ const ModifyApplicantInfo = ({ initialData, onSave }) => {
             name,
             residentNumber,
             address,
-            detailAddress,
+            detailedAddress,
             phoneNumber,
             homeNumber,
             age,
@@ -321,7 +321,7 @@ const ShowInfo = () => {
                     phone: phoneNumber?.trim() || '',
                     tel: homeNumber?.trim() || '',
                     address: address?.trim() || '',
-                    detailAddress: detailedAddress?.trim() || '',
+                    detailedAddress: detailedAddress?.trim() || '',
                     postalCode: postalCode?.trim() || '',
                     age: age || '',
                     documentAttachment: file || null,  // 파일이 없을 때 null
@@ -344,7 +344,7 @@ const ShowInfo = () => {
                     birthDate: guardianBirth || '',
                     email: guardianEmail?.trim() || '',
                     address: guardianAddress?.trim() || '',
-                    detailAddress: guardianDetailedAddress?.trim(),
+                    detailedAddress: guardianDetailedAddress?.trim(),
                     phone: guardianPhone?.trim() || '',
                     tel: guardianTel?.trim() || ''
                 },

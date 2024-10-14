@@ -1,22 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MemberManagement.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
 import MemberMap from '../../components/map/MemberMap';
+import { useAuth } from '../../auth/AuthContext';
+import axios from 'axios';
 
-const MemberManage = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        name: `고세동`,
-        powerUsage: `3khw /`,
-        phoneInactiveDuration: `20시간 /`,
-    })).reverse();
-
+const MemberManage = ({ currentPage, itemsPerPage, totalItems, membersData }) => {
     const navigate = useNavigate();
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const paginatedData = membersData.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="memberHistory">
@@ -33,13 +28,22 @@ const MemberManage = ({ currentPage, itemsPerPage, totalItems }) => {
                     <div className="management-header-power"> 1일 전력 사용량 </div>
                     <div className="management-header-time"> 휴대폰 미사용 시간</div>
                 </div>
-                {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number} onClick={() => navigate('/admin/memberInfo')}>
-                        <div className="management-header-name"> {item.name} </div> 
-                        <div className="management-header-power"> {item.powerUsage} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
-                        <div className="management-header-time"> {item.phoneInactiveDuration} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
-                    </div>
-                ))}
+                {/* 데이터를 렌더링할 때 유효성을 확인 */}
+                {paginatedData && paginatedData.length > 0 ? (
+                    paginatedData.map((item, index) => (
+                        <div
+                            className="memberHistory-content"
+                            key={index}
+                            onClick={() => navigate(`/admin/memberInfo/${item.memberId}`)}
+                        >
+                            <div className="management-header-name"> {item.name} </div> 
+                            <div className="management-header-power"> {item.powerUsage} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
+                            <div className="management-header-time"> {item.phoneInactiveTimeMs} <span style={{ fontSize: 'small', fontWeight: '500' }}>(마지막 체크 시간 24.09.12. 23:00)</span></div>
+                        </div>
+                    ))
+                ) : (
+                    <div>데이터를 불러오는 중입니다...</div> // 데이터가 없을 때 표시
+                )}
             </div>
         </div>
     )
@@ -88,9 +92,38 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 const MemberManagement = () => {
     const navigate = useNavigate();
     const itemsPerPage = 5;
-    const totalItems = 11; // Example total items
+    const [totalItems, setTotalItems] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const [membersData, setMembersData] = useState([]); 
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const { memberId } = useParams();
+    const { accessToken } = useAuth();
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_apiHome}members`, // URL에 중복된 슬래시가 없도록 확인
+                    {
+                        params: {
+                            page: currentPage,
+                            size: itemsPerPage
+                        },
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
+                console.log('API Response:', response.data.data);
+                console.log('Members Data:', response.data.data);
+                 setMembersData(response.data.data); 
+                setTotalItems(response.data.pageInfo.totalElements); 
+            } catch (error) {
+                console.error('Error fetching members:', error);
+            }
+        };
+        fetchMembers();
+    }, [currentPage, itemsPerPage, accessToken]);
 
     const handleNavigation = (item) => {
         if (item === "관리자페이지") {
@@ -119,21 +152,13 @@ const MemberManagement = () => {
         }
     };
 
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        name: `고세동`,
-        powerUsage: `3kWh`,
-        phoneInactiveDuration: `20시간`,
-        checkTime: `(마지막 체크시간 24.10.01. 23:30:00)`,
-        latlng: { lat: 37.499653752945 + i * 0.001, lng: 127.03053487955 + i * 0.001 }, // 임의의 위치 데이터
-    })).reverse();
-
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
-            <MemberManage currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <HeaderBottom text={['관리자페이지', '서비스승인', '알림보내기', '문의내역', '특이사항변경', '사용자관리']} onNavigate={handleNavigation} />
+            <MemberManage currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} membersData={membersData} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-            <MemberMap markers={historyData}/>
+            <MemberMap markers={membersData} />
             <Footer />
         </div>
     );
