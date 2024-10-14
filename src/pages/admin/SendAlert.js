@@ -73,7 +73,7 @@ const AdminAlert = () => {
         const token = localStorage.getItem('accessToken');
         try {
             const response = await axios.post(
-                `${process.env.REACT_APP_apiHome}api/send-alert`,
+                `${process.env.REACT_APP_apiHome}alerts/send-alert`,
                 alertData,
                 {
                     headers: {

@@ -46,7 +46,7 @@ const App = () => {
               <Route path="/admin/question" element={<ProtectedRoute element={<QuestionBoard/>}/>}/>
               <Route path="/admin/question/info" element={<ProtectedRoute element={<QuestionInfo/>}/>}/>
               <Route path="/admin/member" element={<ProtectedRoute element={<MemberManagement/>}/>}/>
-              <Route path="/admin/memberInfo" element={<ProtectedRoute element={<MemberInfo/>}/>}/>
+              <Route path="/admin/memberInfo/:memberId" element={<ProtectedRoute element={<MemberInfo/>}/>}/>
               <Route path="/admin/memberNote" element={<ProtectedRoute element={<MemberNoteHistory/>}/>}/>
         </Routes>
       </Router>

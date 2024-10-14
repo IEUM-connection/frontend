@@ -31,25 +31,6 @@ const MemberMap = ( { markers } ) => {
     }
   }, []);
 
-  const data = [
-    {
-      content: <div style={{ color: "#000" }}>김점례</div>,
-      latlng: { lat: 37.499653752945, lng: 127.03053487955 },
-    },
-    {
-      content: <div style={{ color: "#000" }}>고세동</div>,
-      latlng: { lat: 37.499, lng: 127.029 },
-    },
-    {
-      content: <div style={{ color: "#000" }}>이기성</div>,
-      latlng: { lat: 37.500, lng: 127.027 },
-    },
-    {
-      content: <div style={{ color: "#000" }}>신형만</div>,
-      latlng: { lat: 37.501, lng: 127.026 },
-    },
-  ];
-
   const EventMarkerContainer = ({ position, content }) => {
     const map = useMap();
     const [isVisible, setIsVisible] = useState(false);
@@ -101,19 +82,28 @@ const MemberMap = ( { markers } ) => {
         level={3}
         onCreate={setMap} // 지도가 생성될 때 지도 객체를 저장
       >
-        {markers.map((marker, index) => (
-          <EventMarkerContainer
-            key={`marker-${index}`}
-            position={marker.latlng} 
-            content={
-              <div className="marker-card" style={{ color: "#000" }}>
-                <div>이름: {marker.name}</div>
-                <div>전력 사용량: {marker.powerUsage} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
-                <div>미사용 시간: {marker.phoneInactiveDuration} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
-              </div>
-            }
-          />
-        ))}
+        {markers && markers.length > 0 ? (
+          markers.map((marker, index) => {
+            // lat과 lng 값이 없을 때 기본값 설정
+            const latitude = marker.latlng?.lat || 37.499653752945;
+            const longitude = marker.latlng?.lng || 127.03053487955;
+            return (
+              <EventMarkerContainer
+                key={`marker-${index}`}
+                position={{ lat: latitude, lng: longitude }}
+                content={
+                  <div className="marker-card" style={{ color: "#000" }}>
+                    <div>이름: {marker.name}</div>
+                    <div>전력 사용량: {marker.powerUsage} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
+                    <div>미사용 시간: {marker.phoneInactiveDuration} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
+                  </div>
+                }
+              />
+            );
+          })
+        ) : (
+          <div>표시할 데이터가 없습니다.</div>
+        )}
       </Map>
      {/* 현재 위치로 돌아가는 버튼 */}
      <button

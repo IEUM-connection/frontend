@@ -137,17 +137,13 @@ const VerificationModal = ({ isOpen, onClose, timer, handleCompleteVerification,
 
     if (!isOpen) return null;
 
-    let timeStyle = { color: '#000000' };
+    let timeStyle = { color: 'black' };
     if (remainingTime <= 10) {
-        timeStyle = { color: '#FF0000' };
-    } else if (remainingTime <= 20) {
-        timeStyle = { color: '#FF7700' };
+        timeStyle = { color: 'red' };
     } else if (remainingTime <= 30) {
-        timeStyle = { color: '#B2641C' };
-    } else if (remainingTime <= 40) {
-        timeStyle = { color: '#750404' };
+        timeStyle = { color: 'orange' };
     }
-    
+
     const blinkingClass = remainingTime <= 10 ? 'blinking' : '';
 
     return (
@@ -158,7 +154,7 @@ const VerificationModal = ({ isOpen, onClose, timer, handleCompleteVerification,
                         <img src="/image/logo-text.png" alt="메인로고" />
                     </div>
                     {errorMessage ? (
-                        <div className="modal-text2">{errorMessage}</div>
+                        <div className={`modal-text2 ${blinkingClass}`}>{errorMessage}</div>
                     ) : (
                         <div className="modal-text1">휴대폰 본인 인증 요청을 완료해주세요.
                              <div className={`modal-text2 ${blinkingClass}`} style={timeStyle}>
@@ -729,6 +725,32 @@ const RequestContainer = () => {
         } catch (error) {
             console.error("에러 발생:", error);  // 에러 확인
             setError('인증 중 오류가 발생했습니다.');
+        }
+    };
+
+        const handleTimeoutForAdditionalVerification = async () => {
+        try {
+            // 일정 시간 대기, 여기서는 30초를 예로 듭니다
+            await new Promise((resolve) => setTimeout(resolve, 30000));
+
+            // 타임아웃 후 추가 인증이 필요한 경우 CF-12001로 처리
+            const timeoutResponse = await axios.post(
+                process.env.REACT_APP_apiHome + 'api/identity/timeout',
+                null,
+                {
+                    params: {
+                        // 추가 인증 대기 중인 데이터를 타임아웃 처리로 전달
+                        code: 'CF-12001', // 타임아웃 처리 코드
+                        message: '추가 인증 대기 타임아웃이 발생했습니다.'
+                    },
+                },
+            );
+
+            console.log("Timeout response:", timeoutResponse.data);
+            alert('추가 인증 대기 중 타임아웃이 발생했습니다. 다시 시도해주세요.');
+        } catch (error) {
+            console.error("추가 인증 타임아웃 처리 중 오류 발생:", error);
+            setError('추가 인증 타임아웃 처리 중 오류가 발생했습니다.');
         }
     };
 
