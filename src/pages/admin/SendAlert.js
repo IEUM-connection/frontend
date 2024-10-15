@@ -171,7 +171,7 @@ const AdminAlert = () => {
                         value={alertContent}
                         onChange={(e) => setAlertContent(e.target.value)}
                         placeholder='내용을 입력해주세요.'
-                    ></textarea>
+                    >   [web발신] 알림 내용</textarea>
                 </div>
             </div>
             <button className="signup-submit" onClick={handleSendAlert}>알림 보내기</button>

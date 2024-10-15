@@ -7,7 +7,8 @@ import axios from 'axios';
 
 const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const sortedData = historyData.sort((a, b) => b.alertId - a.alertId);
+    const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
     const navigate = useNavigate();
 
     return (
@@ -22,17 +23,17 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
                     <div className="header-date"> 전송일자 </div>
                 </div>
                 {paginatedData.map((item, index) => (
-                    <div className="memberHistory-content" key={item.id} 
-                    onClick={() => navigate(`/admin/alert/info/${item.alertId}`, { state: { item } })}>
-                        <div className="header-number"> {startIndex + index + 1} </div>
+                    <div className="memberHistory-content" key={item.alertId} 
+                         onClick={() => navigate(`/admin/sendAlertInfo/${item.alertId}`, { state: { item } })}>
+                        <div className="header-number">  {totalItems - startIndex - index} </div> {/* 역순 번호 */}
                         <div className="header-type"> {item.alertType} </div>
-                        <div className="header-history"> {item.message} </div>
+                        <div className="header-history"> {item.recipient} </div>
                         <div className="header-date"> {new Date(item.createdAt).toLocaleDateString()} </div>
                     </div>
                 ))}
             </div>
         </div>
-    )
+    );
 };
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -75,12 +76,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
+
 const SendAlertHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
     const [currentPage, setCurrentPage] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const [historyData, setHistoryData] = useState([]); // 빈 배열로 초기화
+    const [historyData, setHistoryData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -127,7 +129,7 @@ const SendAlertHistory = () => {
                     },
                 });
                 setHistoryData(response.data); // 성공 시 데이터 설정
-                setTotalItems(response.headers['x-total-count'] || 0); // 헤더에 총 아이템 개수 포함
+                setTotalItems(response.data.length);
             } catch (error) {
                 console.error('Error fetching alert data:', error);
             } finally {
