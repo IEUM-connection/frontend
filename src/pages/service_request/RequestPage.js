@@ -580,6 +580,7 @@ const RequestContainer = () => {
                 navigate('/');
             } catch (error) {
                 alert("서비스 신청 중 오류가 발생했습니다.");
+                console.log("신청 오류 발생 : ", error);
         }
     };
 

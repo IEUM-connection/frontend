@@ -24,7 +24,6 @@ const ShowInfo = () => {
                 setLoading(false);
                 return;
             }
-
             try {
                 const response = await axios.get(
                      `${process.env.REACT_APP_apiHome}members/${memberId}`,
@@ -76,6 +75,7 @@ const ShowInfo = () => {
             );
             console.log('승인 성공:', response.data);
             alert('승인이 완료되었습니다.'); // 성공 시 alert
+            await sendSms();
             navigate('/admin'); // 승인 후 관리자 페이지로 이동
         } catch (error) {
             console.error('승인 실패:', error);
@@ -83,7 +83,48 @@ const ShowInfo = () => {
             setError(error);
         }
     };
+    
+    const sendSms = async () => {
+        if(!guardianInfo) {
+            console.error("guardianInfo가 로드되지 않았습니다.");
+            return;
+        }
 
+        console.log("guardianInfo", guardianInfo);
+
+            const smsRequest ={
+                body : `${guardianInfo.name}님, 안녕하세요.\n신청하신 서비스가 성공적으로 승인되었습니다.\n\n사용자 인증 번호는${memberInfo.memberCode}입니다.\n\n앞으로 이음은 홀로 있는 피보호자의 곁에서 온기를 나누고 지키겠습니다.\n서비스 관련 문의 사항이 있어거나 도움이 필요하시면 언제든지 연락해 주세요. \n항상 최선을 다해 도와드리겠습니다. \n감사합니다.\n-이음-`,
+                from : "01087683806",
+                gudianNum : guardianInfo.phone
+            }
+
+            const smsData = JSON.stringify(smsRequest);
+            console.log("sms 전송 데이터", smsData);
+    
+
+        try{
+            const response = await axios.post(`${process.env.REACT_APP_apiHome}send-sms`, 
+                smsRequest,
+                {
+                // headers: {
+                //     Authorization: `Bearer ${accessToken}`
+                // },
+             
+        }
+    );
+
+        if (response.status >= 200 && response.status < 300) { // 응답이 성공적인지 확인
+            const responseBody = await response.json();
+            console.log("SMS 전송 성공:", responseBody); // 성공 로그 출력
+        } else { // 응답이 실패한 경우
+            const errorBody = await response.text(); // 에러 본문 가져오기
+            console.error(`SMS 전송 실패: ${response.statusText}, 응답 코드: ${response.status}, 에러 내용: ${errorBody}`); // 실패 로그 출력
+        }
+    } catch (error) {
+        console.error("오류 발생:", error);
+       }
+    }
+        
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
