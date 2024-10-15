@@ -43,10 +43,10 @@ const App = () => {
               <Route path="/myquestion" element={<MyQuestion/>}/>
               <Route path="/myquestion/detail" element={<MyQuestionDetail/>}/>
               <Route path="/fna-detail/:id" element={<FnaPage/>}/>
-              <Route path="/admin/serviceRequest/:memberId" element={<ProtectedRoute element={<ServiceRequestDetail />} />} />
+              <Route path="/admin/sendAlertInfo/:alertId" element={<SendAlertInfo />} />
               <Route path="/admin/sendAlert" element={<ProtectedRoute element={<SendAlert/>}/>}/>
               <Route path="/admin/sendAlerts" element={<ProtectedRoute element={<SendAlertHistory/>}/>}/>
-              <Route path="/adnim/sendAlert/info" elememt={<ProtectedRoute element={<SendAlertInfo/>}/>}/>
+              <Route path="/admin/sendAlertInfo/:alertId" elememt={<ProtectedRoute element={<SendAlertInfo/>}/>}/>
               <Route path="/admin/question" element={<ProtectedRoute element={<QuestionBoard/>}/>}/>
               <Route path="/admin/question/info" element={<ProtectedRoute element={<QuestionInfo/>}/>}/>
               <Route path="/admin/member" element={<ProtectedRoute element={<MemberManagement/>}/>}/>

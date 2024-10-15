@@ -32,7 +32,14 @@ const ShowInfo = () => {
                 </div>
                 <div className='post-question-line-1'>
                     <div className="post-question-title-1">문의내용</div>
-                    <div className="post-question-content-1">{faqDetail.content}</div>
+                    <div className="post-question-content-1">
+                        {faqDetail.content.split('\n').map((line, index) => (
+                            <React.Fragment key={index}>
+                                {line}
+                                <br />
+                            </React.Fragment>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,7 +51,7 @@ const MyQuestionDetail = () => {
 
     const handleNavigation = (item) => {
         if (item === "내질문조회") {
-            navigate('/'); // 원하는 경로로 수정하세요
+            navigate('/');
             return;
         } else if (item === "자주묻는질문") {
             navigate('/service');

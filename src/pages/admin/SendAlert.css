@@ -78,3 +78,25 @@
 .custom-option:hover {
     background-color: #ddd;
 }
+
+.alert-info-title {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.alert-id {
+    margin: 20px 6px 10px 0;
+    text-align: end;
+    font-size: 16px;
+}
+
+.alert-detail-info {
+    padding-left: 20px;
+    width: 280px;
+}
+
+.alert-message {
+    padding: 14px 20px;
+    font-size: 18px;
+    font-weight: 400;
+}
