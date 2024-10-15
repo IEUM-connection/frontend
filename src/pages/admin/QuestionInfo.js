@@ -13,6 +13,9 @@ const QuestionDetailInfo = () => {
     const [responseContent, setResponseContent] = useState('');
     const { accessToken } = useAuth();
     const questionId = item?.questionId; 
+    const [guardianPhone, setGuardianPhone] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         console.log('item:', item);
@@ -20,7 +23,36 @@ const QuestionDetailInfo = () => {
         if (item?.responseContent) {
             setResponseContent(item.responseContent);
         }
-    }, [item, questionId]);
+
+        // guardianPhone 패칭
+        const fetchGuardianPhone = async () => {
+            if (!questionId) {
+                console.error("질문 ID가 유효하지 않습니다.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // 질문 상세 정보 API 호출
+                const response = await axios.get(`${process.env.REACT_APP_apiHome}questions/${questionId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    },
+                });
+
+                const data = response.data.data;
+                setGuardianPhone(data.guardianPhone);
+                console.log("Fetched guardianPhone:", data.guardianPhone);
+                setLoading(false);
+            } catch (error) {
+                console.error("guardianPhone 패칭 오류:", error);
+                setError(error);
+                setLoading(false);
+            }
+        };
+
+        fetchGuardianPhone();
+    }, [item, questionId, accessToken]);
 
     const handleAnswerChange = (e) => {
         setResponseContent(e.target.value);
@@ -37,46 +69,33 @@ const QuestionDetailInfo = () => {
             return;
         }
 
-        // try {
-            // const response = await axios.patch(
-            //     `${process.env.REACT_APP_apiHome}answers/${answerId}`,
-            //     { content: responseContent },
-            //     {
-            //         headers: {
-            //             Authorization: `Bearer ${accessToken}`,
-            //             'Content-Type': 'application/json'
-            //         }
-            //     }
-            // );
-
-            try {
-                const response = await axios.post(
-                    `${process.env.REACT_APP_apiHome}answers`,
-                    { 
-                        questionId: questionId,
-                        responseContent: responseContent
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            'Content-Type': 'application/json'
-                        }
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_apiHome}answers`,
+                { 
+                    questionId: questionId,
+                    responseContent: responseContent
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
                     }
-                );
+                }
+            );
 
             handleSendAlert();
             setResponseContent('');
             // 성공 후 필요한 처리 (예: 페이지 새로고침 또는 리다이렉트)
-            // 예: window.location.reload();
-
         } catch (error) {
             console.error('답변 등록 실패:', error);
             alert(`답변 등록에 실패했습니다. 에러: ${error.response?.status}`);
         }
     };
     
-    const handleSendAlert = () => {
+    const handleSendAlert = async () => {
         alert('답변이 완료되었습니다.');
+        sendSms();
         navigate('/admin/question');
     };
 
@@ -92,7 +111,6 @@ const QuestionDetailInfo = () => {
         const formattedTime = `${hours}:${minutes}:${seconds}`;
         
         return `${formattedDate} ${formattedTime}`;
-
     };
 
     const getQuestionStatusText = (status) => {
@@ -104,6 +122,46 @@ const QuestionDetailInfo = () => {
             return status; // 다른 상태가 있는 경우 그대로 출력
         }
     };
+
+    const sendSms = async () => {
+        if (!guardianPhone) {
+            console.error("guardianPhone이 유효하지 않습니다.");
+            return;
+        }
+
+        const smsRequest = {
+            body: `${item.name}님, 안녕하세요.\n문의하신 내용에 대한 답변이 완료되었습니다.\n보다 자세한 내용을 확인하시려면 저희 사이트를 방문해주시기 바랍니다.\n항상 저희 서비스를 이용해 주셔서 감사드리며, 추가 문의 사항이 있으시면 언제든지 말씀해 주세요.\n감사합니다.\n-이음-`,
+            from: "01087683806",
+            gudianNum: guardianPhone 
+        };
+
+        const smsData = JSON.stringify(smsRequest);
+        console.log("sms 전송 데이터", smsData);
+
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_apiHome}send-sms`,
+                smsRequest,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                }
+            );
+
+            if (response.status >= 200 && response.status < 300) { // 응답이 성공적인지 확인
+                console.log("SMS 전송 성공:", response.data); // 성공 로그 출력
+            } else { // 응답이 실패한 경우
+                console.error(`SMS 전송 실패: ${response.statusText}, 응답 코드: ${response.status}, 에러 내용: ${response.data}`); // 실패 로그 출력
+            }
+        } catch (error) {
+            console.error("SMS 전송 중 오류 발생:", error);
+        }
+    }
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
 
     return (
         <div className="MyPage-signup-wrap">
@@ -145,6 +203,8 @@ const QuestionDetailInfo = () => {
         </div>
     )
 };
+
+
 
 const QuestionInfo = () => {
     const navigate = useNavigate();
