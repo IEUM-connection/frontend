@@ -1,0 +1,31 @@
+.memberHistory-content-admin {
+    height: auto;
+    min-height: 70px;
+    padding: 4px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #D3D3D3;
+    cursor: pointer;
+}
+
+.header-number-admin {
+    width: 80px;
+    text-align: center;
+}
+
+.header-type-admin {
+    width: 220px;
+    text-align: center;
+}
+
+.header-history-admin {
+    width: 540px;
+    text-align: center;
+}
+
+.header-date-admin {
+    width: 220px;
+    text-align: center;
+}
