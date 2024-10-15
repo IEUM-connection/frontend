@@ -1,9 +1,10 @@
 import './MemberMap.css';
 import { Map, MapMarker ,useMap } from "react-kakao-maps-sdk";
 import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import { useAuth } from '../../auth/AuthContext';
 
 /* global kakao */
-
 const MemberMap = ( { markers } ) => {
   const [currentPosition, setCurrentPosition] = useState({
     lat: 	37.499653752945, // 기본 위치
@@ -83,27 +84,22 @@ const MemberMap = ( { markers } ) => {
         onCreate={setMap} // 지도가 생성될 때 지도 객체를 저장
       >
         {markers && markers.length > 0 ? (
-          markers.map((marker, index) => {
-            // lat과 lng 값이 없을 때 기본값 설정
-            const latitude = marker.latlng?.lat || 37.499653752945;
-            const longitude = marker.latlng?.lng || 127.03053487955;
-            return (
+          markers.map((marker, index) => (
               <EventMarkerContainer
-                key={`marker-${index}`}
-                position={{ lat: latitude, lng: longitude }}
-                content={
-                  <div className="marker-card" style={{ color: "#000" }}>
-                    <div>이름: {marker.name}</div>
-                    <div>전력 사용량: {marker.powerUsage} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
-                    <div>미사용 시간: {marker.phoneInactiveDuration} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
-                  </div>
-                }
+                  key={`marker-${index}`}
+                  position={{ lat: marker.lat, lng: marker.lng }} // latitude, longitude
+                  content={
+                      <div className="marker-card" style={{ color: "#000" }}>
+                          <div>이름: {marker.name}</div>
+                          <div>전력 사용량: {marker.powerUsage} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
+                          <div>미사용 시간: {marker.phoneInactiveDuration} <span style={{ fontSize: 'small' }}>{marker.checkTime}</span></div>
+                      </div>
+                  }
               />
-            );
-          })
-        ) : (
+          ))
+      ) : (
           <div>표시할 데이터가 없습니다.</div>
-        )}
+      )}
       </Map>
      {/* 현재 위치로 돌아가는 버튼 */}
      <button

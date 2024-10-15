@@ -131,6 +131,9 @@ const AdminPage = () => {
         } else if (item === "알림보내기") {
             navigate('/admin/sendAlert');
             return;
+        } else if (item === "알림전송기록") {
+            navigate('/admin/sendAlerts');
+            return;
         } else if (item === "문의내역") {
             navigate('/admin/question');
             return;
@@ -151,7 +154,7 @@ const AdminPage = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
+            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "알림전송기록", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
             <ServiceApproval currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />

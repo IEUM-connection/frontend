@@ -95,15 +95,16 @@ const MemberManagement = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [membersData, setMembersData] = useState([]); 
+    const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const { memberId } = useParams();
     const { accessToken } = useAuth();
 
     useEffect(() => {
         const fetchMembers = async () => {
+            setIsLoading(true); // 데이터 로드 시작 시 로딩 상태 true로 설정
             try {
                 const response = await axios.get(
-                    `${process.env.REACT_APP_apiHome}members`, // URL에 중복된 슬래시가 없도록 확인
+                    `${process.env.REACT_APP_apiHome}members`, 
                     {
                         params: {
                             page: currentPage,
@@ -115,50 +116,59 @@ const MemberManagement = () => {
                     }
                 );
                 console.log('API Response:', response.data.data);
-                console.log('Members Data:', response.data.data);
-                 setMembersData(response.data.data); 
-                setTotalItems(response.data.pageInfo.totalElements); 
+                if (response.data.data && response.data.data.length > 0) {
+                    setMembersData(response.data.data); 
+                    setTotalItems(response.data.pageInfo.totalElements); 
+                } else {
+                    setMembersData([]); // 데이터가 없을 때 빈 배열 설정
+                }
             } catch (error) {
                 console.error('Error fetching members:', error);
+            } finally {
+                setIsLoading(false); // 데이터 로드 완료 후 로딩 상태 false로 설정
             }
         };
         fetchMembers();
     }, [currentPage, itemsPerPage, accessToken]);
-
-    const handleNavigation = (item) => {
-        if (item === "관리자페이지") {
-            navigate('/admin');
-            return;
-        } else if (item === "서비스승인") {
-            navigate('/admin');
-            return;
-        } else if (item === "알림보내기") {
-            navigate('/admin/sendAlert');
-            return;
-        } else if (item === "문의내역") {
-            navigate('/admin/question');
-            return;
-        } else if (item === "특이사항변경") {
-            navigate('/admin/memberNote');
-            return;
-        } else if (item === "사용자관리") {
-            navigate('/admin/member');
-        }
-    };
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
         }
     };
+    
+    const loginType = localStorage.getItem('loginType');
+
+    const handleNavigation = (item) => {
+        if (item === "변경이력조회") {
+            navigate('/request');
+        }
+    };
 
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={['관리자페이지', '서비스승인', '알림보내기', '문의내역', '특이사항변경', '사용자관리']} onNavigate={handleNavigation} />
-            <MemberManage currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} membersData={membersData} />
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-            <MemberMap markers={membersData} />
+            <HeaderBottom text={['관리자페이지', '서비스승인', '알림보내기', '알림전송기록', '문의내역', '특이사항변경', '사용자관리']} onNavigate={handleNavigation} />
+            
+            {isLoading ? ( 
+                <div>데이터를 불러오는 중입니다...</div>
+            ) : (
+                <>
+                    <MemberManage currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} membersData={membersData} />
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                    <MemberMap 
+                        markers={membersData.map(member => ({
+                            lat: member.latitude || 37.499653752945, // 기본 좌표로 대체
+                            lng: member.longitude || 127.03053487955, // 기본 좌표로 대체
+                            name: member.name,
+                            powerUsage: member.powerUsage,
+                            phoneInactiveDuration: member.phoneInactiveTimeMs,
+                            checkTime: member.lastCheckTime
+                        }))} 
+                    />
+                </>
+            )}
+
             <Footer />
         </div>
     );

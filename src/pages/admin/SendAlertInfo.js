@@ -179,7 +179,7 @@ const AdminAlert = () => {
     );
 };
 
-const SendAlert = () => {
+const SendAlertInfo = () => {
     const navigate = useNavigate();
 
     const handleNavigation = (item) => {
@@ -211,4 +211,4 @@ const SendAlert = () => {
     );
 };
 
-export default SendAlert;
+export default SendAlertInfo;

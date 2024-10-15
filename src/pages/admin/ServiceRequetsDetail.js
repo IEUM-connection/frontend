@@ -105,7 +105,7 @@ const ShowInfo = () => {
                         <div className="applicant-info-title">주소</div>
                         <div className="applicant-info-content">{memberInfo.address}</div>
                         <div className="applicant-info-title">상세주소</div>
-                        <div className="applicant-info-content">{memberInfo.detailAddress}</div>
+                        <div className="applicant-info-content">{memberInfo.detailedAddress}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">휴대전화번호</div>
@@ -183,6 +183,9 @@ const ServiceRequestDetail = () => {
         } else if (item === "알림보내기") {
             navigate('/admin/sendAlert');
             return;
+        } else if (item === "알림전송기록") {
+            navigate('/admin/sendAlerts');
+            return;
         } else if (item === "문의내역") {
             navigate('/admin/question');
             return;
@@ -197,7 +200,7 @@ const ServiceRequestDetail = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
+            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "알림전송기록", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
             <ShowInfo />
             <Footer />
         </div>

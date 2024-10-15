@@ -1,39 +1,33 @@
-import React, { useState } from 'react';
-import './MemberNoteHistory.css';
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import axios from 'axios';
 
-const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        number: i + 1,
-        name: `고세동`,
-        history: `대상자 특이사항 변경`,
-        date: `2024.10.${(i % 30) + 1}`,
-    })).reverse();
-
+const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const navigate = useNavigate();
 
     return (
         <div className="memberHistory">
-            <div className="history-title">변경 이력 조회</div>
+            <div className="history-title">알림 전송 내역</div>
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
                     <div className="header-number"> 번호 </div>
-                    <div className='header-type'> 이름 </div>
-                    <div className="header-history"> 변경 내역 </div>
-                    <div className="header-date"> 변경날짜 </div>
+                    <div className='header-type'> 유형 </div>
+                    <div className="header-history"> 대상 </div>
+                    <div className="header-date"> 전송일자 </div>
                 </div>
-                {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number}>
-                        <div className="header-number"> {item.number} </div>
-                        <div className="header-type"> {item.name} </div>
-                        <div className="header-history"> {item.history} </div>
-                        <div className="header-date"> {item.date} </div>
+                {paginatedData.map((item, index) => (
+                    <div className="memberHistory-content" key={item.id} 
+                    onClick={() => navigate(`/admin/alert/info/${item.alertId}`, { state: { item } })}>
+                        <div className="header-number"> {startIndex + index + 1} </div>
+                        <div className="header-type"> {item.alertType} </div>
+                        <div className="header-history"> {item.message} </div>
+                        <div className="header-date"> {new Date(item.createdAt).toLocaleDateString()} </div>
                     </div>
                 ))}
             </div>
@@ -81,11 +75,14 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const MemberNoteHistory = () => {
+const SendAlertHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
-    const totalItems = 47; // Example total items
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [historyData, setHistoryData] = useState([]); // 빈 배열로 초기화
+    const [loading, setLoading] = useState(true);
+
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const handleNavigation = (item) => {
@@ -118,15 +115,42 @@ const MemberNoteHistory = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(
+                     `${process.env.REACT_APP_apiHome}alerts`, {
+                    params: {
+                        page: currentPage - 1, // 서버 페이지는 0부터 시작하므로 -1
+                        size: itemsPerPage,
+                    },
+                });
+                setHistoryData(response.data); // 성공 시 데이터 설정
+                setTotalItems(response.headers['x-total-count'] || 0); // 헤더에 총 아이템 개수 포함
+            } catch (error) {
+                console.error('Error fetching alert data:', error);
+            } finally {
+                setLoading(false); // 로딩 상태 해제
+            }
+        };
+
+        fetchAlerts();
+    }, [currentPage, itemsPerPage]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="app">
             <Header />
             <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "알림전송기록", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
-            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+            <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} historyData={historyData} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
             <Footer />
         </div>
     );
 };
 
-export default MemberNoteHistory;
+export default SendAlertHistory;

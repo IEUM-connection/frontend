@@ -59,7 +59,7 @@ const ShowInfo = () => {
                 console.log('Patch Data:', patchData);
 
                 const response = await axios.patch(
-                    `${process.env.REACT_APP_apiHome}members/${memberId}/adminNote`,
+                    `${process.env.REACT_APP_apiHome}members/${memberId}`,
                     patchData, 
                 {
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -187,6 +187,9 @@ const MemberInfo = () => {
         } else if (item === "알림보내기") {
             navigate('/admin/sendAlert');
             return;
+        } else if (item === "알림전송기록") {
+            navigate('/admin/sendAlerts');
+            return;
         } else if (item === "문의내역") {
             navigate('/admin/question');
             return;
@@ -201,7 +204,7 @@ const MemberInfo = () => {
     return (
         <div className="app">
             <Header />
-            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
+            <HeaderBottom text={["관리자페이지", "서비스승인", "알림보내기", "알림전송기록", "문의내역", "특이사항변경", "사용자관리"]} onNavigate={handleNavigation} />
             <ShowInfo />
             <Footer />
         </div>
