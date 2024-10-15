@@ -244,7 +244,7 @@ const RequestContainer = () => {
     const [guardianInfo, setGuardianInfo] = useState(null);
     const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
     const [residentNumber, setResidentNumber] = useState('');
-    const [detailedAddress, setDetailedAddress] = useState('');
+    const [detailedAddress, setDetialedAddress] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [medicalHistory, setMedicalHistory] = useState('');
     const [notes, setNotes] = useState('');
@@ -531,7 +531,7 @@ const RequestContainer = () => {
     const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
 
     const handleDetailAddressChange = (e) => {
-        setDetailedAddress(e.target.value);
+        setDetialedAddress(e.target.value);
     };
 
     const handleJoinButton = async () => {
@@ -580,7 +580,6 @@ const RequestContainer = () => {
                 navigate('/');
             } catch (error) {
                 alert("서비스 신청 중 오류가 발생했습니다.");
-                console.log("신청 오류 발생 : ", error);
         }
     };
 

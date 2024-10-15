@@ -71,6 +71,16 @@
 
 .service-title1 {
     width: 580px;
+    height: auto;
     position: relative;
     text-align: center;
+}
+
+.changed-field-name {
+    font-weight: 700;
+}
+
+.new-value {
+    color: #ff2929;
+    font-weight: 700;
 }

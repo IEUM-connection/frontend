@@ -1,21 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './MemberHistory.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useNavigate } from 'react-router-dom';
 import HeaderBottom from '../../components/HeaderBottom';
+import axios from 'axios';
+import { useAuth } from '../../auth/AuthContext';
 
-const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
-    // 더미데이터
-    const historyData = Array.from({ length: totalItems }, (_, i) => ({
-        number: i + 1,
-        history: `대상자 특이사항 변경 ${i + 1}`,
-        status: i % 2 === 0 ? '승인완료' : '승인대기중',
-        date: `2024.10.${(i % 30) + 1}`,
-    })).reverse();
+// 두 개의 이력 항목을 비교해서 변경된 부분을 반환하는 함수
+const getChangedFields = (prevHistory, currentHistory) => {
+    const changedFields = [];
 
+    // 영어 필드명과 한글 필드명을 매핑
+    const fieldMap = {
+        address: '주소',
+        detailedAddress: '상세주소',
+        postalCode: '우편번호',
+        tel: '전화번호',
+        phone: '휴대전화번호',
+        emergencyContact: '비상연락처',
+        memberStatus: '회원상태',
+        medicalHistory: '병력사항',
+        milkDeliveryRequest: '우유배달요청',
+        documentAttachment: '첨부서류',
+        notes: '특이사항',
+        adminName: '관리자이름',
+    };
+
+    const fieldsToCompare = Object.keys(fieldMap); // 필드명 리스트
+
+    fieldsToCompare.forEach(field => {
+        if (prevHistory[field] !== currentHistory[field]) {
+            changedFields.push({
+                field: fieldMap[field], // 영어 필드명을 한글로 변환
+                oldValue: prevHistory[field], // 이전 값
+                newValue: currentHistory[field], // 새로운 값
+            });
+        }
+    });
+
+    return changedFields;
+};
+
+// 변경된 필드를 출력하는 컴포넌트
+const ChangedFieldsView = ({ changedFields }) => {
+    return (
+        <div className="changed-fields">
+            {changedFields.map(({ field, oldValue, newValue }, index) => (
+                <div key={index} className="changed-field">
+                    {/* 한 줄로 변경된 필드명과 값을 표시 */}
+                    <span className="changed-field-name">{field}</span> {/* 한글 필드명 */}
+                    <span className="changed-field-values"> :
+                        <span className="old-value"> {oldValue || '없음'} </span>
+                        <span className="arrow"> → </span>
+                        <span className="new-value"> {newValue || '없음'} </span>
+                    </span>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = historyData.slice(startIndex, startIndex + itemsPerPage);
+    const sortedData = historyData.sort((a, b) => b.historyId - a.historyId); // 최신순으로 정렬
+    const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
+    // const navigate = useNavigate(); // useNavigate 훅 선언
+
+    // // 클릭 이벤트 핸들러
+    // const handleRowClick = (historyId) => {
+    //     navigate(`/history/info/${historyId}`); // 클릭 시 이동할 경로 지정 (historyId를 경로에 추가 가능)
+    // };
 
     return (
         <div className="memberHistory">
@@ -23,22 +78,33 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems }) => {
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
-                    <div className="header-number"> 번호 </div>
-                    <div className="header-history"> 변경이력 </div>
-                    <div className="header-type"> 상태 </div>
-                    <div className="header-date"> 변경날짜 </div>
+                    <div className="service-header"> 번호 </div>
+                    <div className="service-title1"> 변경항목 </div>
+                    <div className="service-date"> 변경날짜 </div>
                 </div>
-                {paginatedData.map((item) => (
-                    <div className="memberHistory-content" key={item.number}>
-                        <div className="header-number"> {item.number} </div>
-                        <div className="header-history"> {item.history} </div>
-                        <div className="header-type"> {item.status} </div>
-                        <div className="header-date"> {item.date} </div>
-                    </div>
-                ))}
+                {paginatedData.map((item, index) => {
+                    const prevItem = sortedData[index + 1]; // 이전 이력 항목
+                    const changedFields = prevItem ? getChangedFields(prevItem, item) : null; // 이전 항목과 비교
+
+                    return (
+                        <div className="memberHistory-content" key={item.historyId}
+                            //onClick={() => handleRowClick(item.historyId)}
+                        >
+                            <div className="service-header"> {totalItems - startIndex - index} </div>
+                            {changedFields && changedFields.length > 0 ? (
+                                <div className="service-title1">
+                                    <ChangedFieldsView changedFields={changedFields} />
+                                </div>
+                            ) : (
+                                <div className="service-title1"> 변경된 내용 없음 </div>
+                            )}
+                            <div className="service-date"> {new Date(item.modifiedAt).toLocaleDateString()} </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
-    )
+    );
 };
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -85,8 +151,11 @@ const MemberHistory = () => {
     const navigate = useNavigate();
     const itemsPerPage = 10;
     const [totalItems, setTotalItems] = useState(0); 
+    const [historyData, setHistoryData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    const [loading, setLoading] = useState(true);
+    const { accessToken, userInfo } = useAuth();
+    const [memberId, setMemberId] = useState(null);
     const loginType = localStorage.getItem('loginType');
 
     const handleNavigation = (item) => {
@@ -96,10 +165,77 @@ const MemberHistory = () => {
     };
 
     const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) {
+        if (page >= 1 && page <= Math.ceil(totalItems / itemsPerPage)) {
             setCurrentPage(page);
         }
     };
+
+    // memberId를 가져오기 위한 useEffect
+    useEffect(() => {
+        const fetchMemberId = async () => {
+            try {
+                let fetchedMemberId = null;
+
+                 // 1. userInfo에 memberId가 있다면 바로 사용
+                 if (userInfo?.memberId) {
+                    fetchedMemberId = userInfo.memberId;
+                } else {
+                    // 2. guardianId를 통해 memberId 조회
+                    const response = await axios.get(
+                        `${process.env.REACT_APP_apiHome}members/guardian`, {
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        }
+                    );
+                    fetchedMemberId = response.data.data.memberId;
+                }
+    
+                setMemberId(fetchedMemberId);
+            } catch (error) {
+                console.error('Error fetching member info:', error);
+            }
+        };
+    
+        if (accessToken) {
+            fetchMemberId();                                                        
+        }
+    }, [userInfo, accessToken]);
+
+    // 히스토리 데이터를 가져오기 위한 useEffect
+    useEffect(() => {
+        const fetchMemberHistory = async () => {
+            setLoading(true);
+            try {
+                if (memberId) {
+                    const response = await axios.get(
+                        `${process.env.REACT_APP_apiHome}members/history/${memberId}`, // 서버 API 호출
+                        {
+                            params: {
+                                page: currentPage, // 페이지는 1-based
+                                size: itemsPerPage,
+                            },
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        }
+                    );
+                    setHistoryData(response.data.data); // 서버에서 받아온 데이터를 상태로 저장
+                    setTotalItems(response.data.pageInfo.totalElements); // 전체 아이템 수를 설정
+                }
+            } catch (error) {
+                console.error('Error fetching member history:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (memberId) {
+            fetchMemberHistory(); // memberId가 설정된 후 호출
+        }
+    }, [currentPage, memberId, itemsPerPage, accessToken]);
+
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
     return (
         <div className="app">
@@ -107,7 +243,7 @@ const MemberHistory = () => {
             <HeaderBottom text={["마이페이지", "변경이력조회"]} onNavigate={handleNavigation} />
             {loginType !== 'ADMIN' ? (
                 <>
-                    <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+                    <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} historyData={historyData} />
                     <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
                 </>
             ) : (
