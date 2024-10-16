@@ -106,7 +106,7 @@ const CustomModal = ({ isOpen, onClose, onSubmit }) => {
 
     return (
         <div className="signup-input-box">
-            <div className="modal-content">
+            <div className="modal-content-1">
                 <input
                     type="text"
                     value={inputValue}
@@ -241,8 +241,12 @@ const RequestContainer = () => {
     const [file, setFile] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+
     const [guardianInfo, setGuardianInfo] = useState(null);
+    const [adminInfo, setAdminInfo] = useState(null);
+    const loginType = localStorage.getItem('loginType'); 
     const { accessToken, userInfo } = useAuth(); // AuthContext에서 accessToken과 userInfo 가져오기
+
     const [residentNumber, setResidentNumber] = useState('');
     const [detailedAddress, setDetialedAddress] = useState('');
     const [postalCode, setPostalCode] = useState('');
@@ -251,6 +255,7 @@ const RequestContainer = () => {
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
     const [emergencyContact, setEmergencyContact] = useState('');
+    const [emergencyContactError, setEmergencyContactError] = useState('');
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(''); 
     const [documentAttachment, setDocumentAttachment] = useState('');
     const [selectedCarrier, setSelectedCarrier] = useState('통신사');
@@ -268,9 +273,9 @@ const RequestContainer = () => {
         'SKT': 0,
         'KT': 1,
         'LG U+': 2,
-        '알뜰폰SKT': 3,
-        '알뜰폰KT': 4,
-        '알뜰폰LGU+': 5
+        '알뜰폰SKT': 0,
+        '알뜰폰KT': 1,
+        '알뜰폰LGU+': 2
     };
 
     let formData = new FormData();
@@ -402,6 +407,10 @@ const RequestContainer = () => {
     const handleHomeNumberChange = (e) => {
         setHomeNumber(e.target.value);
     };
+
+    const handleEmergencyContactChange = (e) => {
+        setEmergencyContact(e.target.value);
+    };
     
     const handleHomeNumberBlur = () => {
         // 일반 전화번호 유효성 검사 (빈칸이거나 지역번호-XXXX-XXXX 또는 XXXX-XXXX 형식)
@@ -410,6 +419,16 @@ const RequestContainer = () => {
             setHomeNumberError(''); // 빈칸이거나 유효한 형식일 경우 에러 메시지 초기화
         } else {
             setHomeNumberError('유효한 전화번호를 입력하세요. 예시: 02-1234-5678 또는 1234-5678');
+        }
+    };
+
+    const handleEmergencyContactBlur = () => {
+        // 일반 전화번호 유효성 검사 (빈칸이거나 지역번호-XXXX-XXXX 또는 XXXX-XXXX 형식)
+        const regex = /^01[0-9]-?\d{3,4}-?\d{4}$/;
+        if (emergencyContact === '' || regex.test(emergencyContact)) {
+            setEmergencyContactError(''); // 빈칸이거나 유효한 형식일 경우 에러 메시지 초기화
+        } else {
+            setEmergencyContactError('유효한 휴대폰 번호를 입력하세요. 예시: 010-1234-5678 또는 01012345678');
         }
     };
 
@@ -528,8 +547,6 @@ const RequestContainer = () => {
         return true;
     };
 
-    const requiredTerms = [0, 1]; // 0: 멤버십 이용약관, 1: 개인정보 수집 및 이용
-
     const handleDetailAddressChange = (e) => {
         setDetialedAddress(e.target.value);
     };
@@ -544,6 +561,12 @@ const RequestContainer = () => {
         const requiredTerms = [0, 1];  // 필수 항목 정의
         const hasAgreedToAllRequiredTerms = requiredTerms.every(term => checkItems.includes(term));
         
+        let birthDate = '';
+        if (residentNumberLeft.length === 6) {
+            const yearPrefix = parseInt(residentNumberLeft.substring(0, 2), 10) > 21 ? '19' : '20'; 
+            birthDate = `${yearPrefix}${residentNumberLeft.substring(0, 2)}-${residentNumberLeft.substring(2, 4)}-${residentNumberLeft.substring(4, 6)}`;
+        }
+
         if (!hasAgreedToAllRequiredTerms) {
             alert('필수 약관에 모두 동의해 주세요.');
             return;
@@ -583,25 +606,37 @@ const RequestContainer = () => {
         }
     };
 
+    // guardian 정보 Get 요청
     useEffect(() => {
-        const fetchGuardianInfo = async () => {
+        const fetchUserInfo = async () => {
             try {
-                const response = await axios.get(
-                    process.env.REACT_APP_apiHome + `guardians`, // userInfo에서 guardianId를 사용
-                    {   
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    }
-                );
-                setGuardianInfo(response.data.data); // 보호자 정보 상태에 저장
+                if (loginType === 'ADMIN') {
+                    const adminResponse = await axios.get(
+                        process.env.REACT_APP_apiHome + `admins`,
+                        {
+                            headers: { Authorization: `Bearer ${accessToken}` },
+                        }
+                    );
+                    setAdminInfo(adminResponse.data.data);
+
+                } else if (loginType === 'GUARDIAN') {
+                    const guardianResponse = await axios.get(
+                        process.env.REACT_APP_apiHome + `guardians`,
+                        {
+                            headers: { Authorization: `Bearer ${accessToken}` },
+                        }
+                    );
+                    setGuardianInfo(guardianResponse.data.data);
+                }
             } catch (error) {
-                console.error('보호자 정보 가져오기 실패:', error);
+                console.error('정보 가져오기 실패:', error);
             }
         };
-
+    
         if (accessToken) {
-            fetchGuardianInfo(); // 토큰이 있을 때만 API 호출
+            fetchUserInfo();
         }
-    }, [accessToken]);
+    }, [accessToken]); // loginType이 고정되어 있다면 배열에서 제외 가능
 
 
     useEffect(() => {
@@ -755,7 +790,7 @@ const RequestContainer = () => {
     };
 
     if (!guardianInfo) {
-        return <div className="admin-message">관리자는 관리자 페이지를 이용해주세요.</div>; // 보호자 정보 로딩 중일 때 표시
+        return <div className="admin-message">회원가입 후 사용이 가능합니다.</div>; // 보호자 정보 로딩 중일 때 표시
     }
 
     return (
@@ -835,6 +870,20 @@ const RequestContainer = () => {
                         />
                         <div className={`signup-guide ${homeNumberError ? 'error' : ''}`}>
                             {homeNumberError || '예시: 02-000-0000 / 빈칸도 허용합니다.'}
+                        </div>
+                    </div>
+                </div>
+                <div className='signup-input-line'>
+                    <div className="signup-title">비상연락처</div>
+                    <div className="signup-input-box">
+                         <input
+                            className="signup-input"
+                            value={emergencyContact}
+                            onBlur={handleEmergencyContactBlur}
+                            onChange={handleEmergencyContactChange}
+                        />
+                        <div className={`signup-guide ${emergencyContactError ? 'error' : ''}`}>
+                            {emergencyContactError || '보호자가 연락되지 않을 경우에 사용됩니다. / 없다면 빈칸도 허용합니다.'}
                         </div>
                     </div>
                 </div>
@@ -940,7 +989,7 @@ const RequestContainer = () => {
                     }
                     
                     {
-                        <button className="search-email" onClick={handleFileDeleteClick}>삭제</button>
+                        <button className="search-email1" onClick={handleFileDeleteClick}>삭제</button>
                     }
                 </div>
                 <div className='signup-input-line'>

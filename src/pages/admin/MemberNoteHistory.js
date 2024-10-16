@@ -101,7 +101,11 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
                             <div className="header-number-admin">{item.historyId}</div>
                             <div className="header-type-admin">{item.name}</div>
                             <div className="header-history-admin">
-                                <ChangedFieldsView changedFields={changedFields} />
+                                {!prevItem ? (
+                                    <div className="first-registration">회원 정보 최초 등록</div>
+                                ) : (
+                                    <ChangedFieldsView changedFields={changedFields} />
+                                )}
                             </div>
                             <div className="header-date-admin"> {new Date(item.modifiedAt).toLocaleDateString()} </div>
                         </div>

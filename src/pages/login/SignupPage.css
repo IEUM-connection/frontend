@@ -8,6 +8,7 @@
     margin: 0 auto;
     margin-top: 80px;
     margin-bottom: 80px;
+    padding-right: 90px;
 }
 
 .signup-logo img {
@@ -67,7 +68,7 @@
     color: red; /* 에러 시 색상 */
 }
 
-.search-address, .search-email {
+.search-address, .search-email, .search-email1 {
     width: 80px;
     height: 34px;
     border: none;
@@ -77,6 +78,10 @@
     font-weight: 700;
     margin-left: 30px;
     cursor: pointer;
+}
+
+.search-email1 {
+    margin-left: 6px;
 }
 
 .show-password {

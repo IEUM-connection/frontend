@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './LoginModal.css';
 import axios from 'axios';
 import { AuthContext } from '../auth/AuthContext';
+import FindEmail from './FindEmail'; // FindEmail 컴포넌트 임포트
+import FindPassword from './FindPassword'; 
 
 // LoginModal 컴포넌트는 로그인 화면을 보여주는 모달창 역할을 합니다.
 const LoginModal = ({ onClose }) => {
@@ -14,6 +16,8 @@ const LoginModal = ({ onClose }) => {
     const [email, setEmail] = useState(''); // 사용자가 입력한 이메일 또는 관리자 코드를 저장하는 상태
     const { login } = useContext(AuthContext); // 로그인 상태를 업데이트하는 함수
     const [isLoading, setIsLoading] = useState(false); // 로그인 중인지 확인하는 상태
+    const [isFindEmailOpen, setIsFindEmailOpen] = useState(false);
+    const [isFindPasswordOpen, setIsFindPasswordOpen] = useState(false);
 
     // closeModal 함수는 모달을 닫는 역할을 합니다.
     const closeModal = () => {
@@ -100,7 +104,16 @@ const LoginModal = ({ onClose }) => {
     };
 
     // 모달이 닫혔다면 아무 것도 렌더링하지 않음
-    if (!isOpen) return null;
+    // if (!isOpen) return null;
+    // // FindEmail 모달이 열려있으면 FindEmail 컴포넌트를 보여줌
+    // if (isFindEmailOpen) {
+    //     return <FindEmail onClose={() => setIsFindEmailOpen(false)} />;
+    // }
+
+    // // FindPassword 모달이 열려있으면 FindPassword 컴포넌트를 보여줌
+    // if (isFindPasswordOpen) {
+    //     return <FindPassword onClose={() => setIsFindPasswordOpen(false)} />;
+    // }
 
     // 로그인 모달 화면을 렌더링합니다.
     return (
@@ -145,8 +158,8 @@ const LoginModal = ({ onClose }) => {
                     <div className="login-function">
                         {/* 회원가입, 이메일 찾기, 비밀번호 찾기 기능 */}
                         <div className="signup" onClick={() => navigate('/signup')}>회원가입</div>
-                        <div className="find-email">이메일 찾기</div>
-                        <div className="find-password">비밀번호 찾기</div>
+                        {/* <div className="find-email" onClick={() => setIsFindEmailOpen(true)}>이메일 찾기</div>
+                        <div className="find-password" onClick={() => setIsFindPasswordOpen(true)}>비밀번호 찾기</div> */}
                     </div>
                 </div>
             </div>

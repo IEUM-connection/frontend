@@ -25,16 +25,26 @@ const getChangedFields = (prevHistory, currentHistory) => {
         documentAttachment: '첨부서류',
         notes: '특이사항',
         adminName: '관리자이름',
+        age: '나이'
     };
 
     const fieldsToCompare = Object.keys(fieldMap); // 필드명 리스트
 
     fieldsToCompare.forEach(field => {
-        if (prevHistory[field] !== currentHistory[field]) {
+        let oldValue = prevHistory[field];
+        let newValue = currentHistory[field];
+
+        // milkDeliveryRequest의 경우 Boolean 값을 "신청"/"미신청"으로 변환
+        if (field === 'milkDeliveryRequest') {
+            oldValue = oldValue ? '신청' : '미신청';
+            newValue = newValue ? '신청' : '미신청';
+        }
+
+        if (oldValue !== newValue) {
             changedFields.push({
-                field: fieldMap[field], // 영어 필드명을 한글로 변환
-                oldValue: prevHistory[field], // 이전 값
-                newValue: currentHistory[field], // 새로운 값
+                field: fieldMap[field],
+                oldValue: oldValue, 
+                newValue: newValue, 
             });
         }
     });
@@ -48,13 +58,13 @@ const ChangedFieldsView = ({ changedFields }) => {
         <div className="changed-fields">
             {changedFields.map(({ field, oldValue, newValue }, index) => (
                 <div key={index} className="changed-field">
-                    {/* 한 줄로 변경된 필드명과 값을 표시 */}
-                    <span className="changed-field-name">{field}</span> {/* 한글 필드명 */}
+                    <span className="changed-field-name">{field}</span>
                     <span className="changed-field-values"> :
                         <span className="old-value"> {oldValue || '없음'} </span>
-                        <span className="arrow"> → </span>
-                        <span className="new-value"> {newValue || '없음'} </span>
                     </span>
+                    <div className="arrow"> →
+                        <span className="new-value"> {newValue || '없음'} </span>
+                    </div>
                 </div>
             ))}
         </div>
@@ -62,10 +72,6 @@ const ChangedFieldsView = ({ changedFields }) => {
 };
 
 const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const sortedData = historyData.sort((a, b) => b.historyId - a.historyId); // 최신순으로 정렬
-    const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
-    // const navigate = useNavigate(); // useNavigate 훅 선언
 
     // // 클릭 이벤트 핸들러
     // const handleRowClick = (historyId) => {
@@ -74,7 +80,7 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
 
     return (
         <div className="memberHistory">
-            <div className="history-title">변경 이력 조회</div>
+            <div className="history-title">대상자 변경 이력</div>
             <div className="history-view-count">조회결과 {totalItems} 건</div>
             <div className="memberHistory-container">
                 <div className="memberHistory-header">
@@ -82,23 +88,24 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
                     <div className="service-title1"> 변경항목 </div>
                     <div className="service-date"> 변경날짜 </div>
                 </div>
-                {paginatedData.map((item, index) => {
-                    const prevItem = sortedData[index + 1]; // 이전 이력 항목
-                    const changedFields = prevItem ? getChangedFields(prevItem, item) : null; // 이전 항목과 비교
+                {historyData.map((item, index) => {
+                    const prevItem = index < historyData.length - 1 ? historyData[index + 1] : null;
+                    const changedFields = prevItem ? getChangedFields(prevItem, item) : null;
+                    const itemNumber = totalItems - ((currentPage - 1) * itemsPerPage + index);
 
                     return (
-                        <div className="memberHistory-content" key={item.historyId}
-                            //onClick={() => handleRowClick(item.historyId)}
-                        >
-                            <div className="service-header"> {totalItems - startIndex - index} </div>
-                            {changedFields && changedFields.length > 0 ? (
+                        <div className="memberHistory-content" key={item.historyId}>
+                            <div className="service-header">{itemNumber}</div>
+                            {prevItem === null ? (
+                                <div className="service-title1">대상자 정보 최초 입력</div>
+                            ) : changedFields && changedFields.length > 0 ? (
                                 <div className="service-title1">
                                     <ChangedFieldsView changedFields={changedFields} />
                                 </div>
                             ) : (
-                                <div className="service-title1"> 변경된 내용 없음 </div>
+                                <div className="service-title1">변경된 내용 없음</div>
                             )}
-                            <div className="service-date"> {new Date(item.modifiedAt).toLocaleDateString()} </div>
+                            <div className="service-date">{new Date(item.modifiedAt).toLocaleDateString()}</div>
                         </div>
                     );
                 })}
@@ -220,8 +227,10 @@ const MemberHistory = () => {
                             },
                         }
                     );
-                    setHistoryData(response.data.data); // 서버에서 받아온 데이터를 상태로 저장
-                    setTotalItems(response.data.pageInfo.totalElements); // 전체 아이템 수를 설정
+                    const sortedHistoryData = response.data.data.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
+
+                    setHistoryData(sortedHistoryData); // 최신순으로 정렬된 데이터를 상태로 저장
+                    setTotalItems(response.data.pageInfo.totalElements);
                 }
             } catch (error) {
                 console.error('Error fetching member history:', error);
@@ -241,7 +250,11 @@ const MemberHistory = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["마이페이지", "변경이력조회"]} onNavigate={handleNavigation} />
-            {loginType !== 'ADMIN' ? (
+            {!userInfo ? (
+                <div className="admin-message">
+                    로그인 후 이용해주세요.
+                </div>
+            ) : loginType !== 'ADMIN' ? (
                 <>
                     <HistoryInfo currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} historyData={historyData} />
                     <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />

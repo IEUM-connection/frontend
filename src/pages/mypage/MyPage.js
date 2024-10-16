@@ -9,9 +9,10 @@ import axios from 'axios'
 
 const ShowInfo = () => {
     const navigate = useNavigate();
-    const { accessToken } = useAuth();
+    const { accessToken, userInfo } = useAuth();
     const [guardianInfo, setGuardianInfo] = useState(null);
     const [memberInfo, setMemberInfo] = useState(null);
+    
 
     useEffect(() => {
         const fetchGuardianAndMemberInfo = async () => {
@@ -48,12 +49,14 @@ const ShowInfo = () => {
 
     const loginType = localStorage.getItem('loginType');
 
-    if (loginType === 'ADMIN') {
-        return <div className="admin-message">관리자는 관리자 페이지를 이용해주세요.</div>;
-    }
-
     if (!guardianInfo) {
-        return <div>정보를 불러오는 중입니다...</div>; // 정보 로딩 중일 때 표시
+        if (!userInfo) {
+            // 로그인하지 않은 상태에서 보일 메시지
+            return <div className="admin-message">로그인 후 이용해주세요.</div>;
+        } else if (loginType === 'ADMIN') {
+            // 로그인한 상태에서 admin일 경우
+            return <div className="admin-message">관리자 페이지를 이용해주세요.</div>;
+        }
     }
 
     return (
@@ -88,8 +91,12 @@ const ShowInfo = () => {
                     <div className='signup-input-line'>
                         <div className="applicant-info-title">병력사항</div>
                         <div className="applicant-info-content">{memberInfo?.medicalHistory}</div>
-                        <div className="applicant-info-title">우유 가정 배달<br />서비스 신청 여부</div>
-                        <div className="applicant-info-content">{memberInfo?.milkDeliveryRequest ? '신청' : '미신청'}</div>
+                        <div className="applicant-info-title">비상연락처</div>
+                        <div className="applicant-info-content">{memberInfo?.emergencyContact}</div>
+                    </div>
+                    <div className='signup-input-line'>
+                        <div className="applicant-info-title-1">우유 가정 배달<br />서비스 신청 여부</div>
+                        <div className="applicant-info-content-1">{memberInfo?.milkDeliveryRequest ? '신청' : '미신청'}</div>
                     </div>
                     <div className='signup-input-line'>
                         <div className="applicant-info-title-1">관계 증명 서류</div>

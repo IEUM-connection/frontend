@@ -113,18 +113,19 @@ const ModifyApplicantInfo = ({ initialData, onSave }) => {
     const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber || '');
     const [homeNumber, setHomeNumber] = useState(initialData.homeNumber || '');
     const [age, setAge] = useState(initialData.age || '');
+    const [postalCode, setPostalCode] = useState(initialData.postalCode || '');
     const [relationship, setRelationship] = useState(initialData.relationship || '');
     const [medicalHistory, setMedicalHistory] = useState(initialData.medicalHistory || '');
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(initialData.milkDeliveryRequest || false);
     const [notes, setNotes] = useState(initialData.notes || '');
-    const [file, setFile] = useState(null);
+    const [documentAttachment, setDocumentAttachment] = useState(initialData.documentAttachment || '');
     
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
-            setFile(selectedFile);
+            setDocumentAttachment(selectedFile);
         }
     };
 
@@ -139,6 +140,7 @@ const ModifyApplicantInfo = ({ initialData, onSave }) => {
             residentNumber,
             address,
             detailedAddress,
+            postalCode,
             phoneNumber,
             homeNumber,
             age,
@@ -163,7 +165,7 @@ const Checkbox = ({ id, title, status, checked, onChange }) => (
             type="checkbox"
             id={`checkbox-${id}`}
             className="checkbox"
-            onChange={(e) => onChange(e.target.checked, id)}
+            onChange={(e) => onChange(e.target.checked)}
             checked={checked}
         />
         <label htmlFor={`checkbox-${id}`}>
@@ -191,14 +193,14 @@ const ShowInfo = () => {
     const [milkDeliveryRequest, setMilkDeliveryRequest] = useState(false);
     const [notes, setNotes] = useState('');
     const [relationship, setRelationship] = useState('');
-
+    const [emergencyContactError, setEmergencyContactError] = useState('');
     const [file, setFile] = useState(null);
     const [postalCode, setPostalCode] = useState('');
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
     const fileInputRef = useRef(null);
     const [emergencyContact, setEmergencyContact] = useState('');
-
+    const [documentAttachment, setDocumentAttachment] = useState(null);
     const [guardianName, setGuardianName] = useState('');
     const [guardianBirth, setGuardianBirth] = useState('');
     const [guardianEmail, setGuardianEmail] = useState('');
@@ -206,6 +208,10 @@ const ShowInfo = () => {
     const [guardianDetailedAddress, setGuardianDetailedAddress] = useState('');
     const [guardianPhone, setGuardianPhone] = useState('');
     const [guardianTel, setGuardianTel] = useState('');
+    const [guardianPostalCode, setGuardianPostalCode] = useState('');
+    const handleMilkDeliveryRequestChange = (isRequesting) => {
+        setMilkDeliveryRequest(isRequesting); // 클릭한 값에 따라 상태를 변경
+    };
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
@@ -216,6 +222,20 @@ const ShowInfo = () => {
 
     const handleFileUploadClick = () => {
         fileInputRef.current.click();
+    };
+
+    const handleEmergencyContactChange = (e) => {
+        setEmergencyContact(e.target.value);
+    };
+    
+    const handleEmergencyContactBlur = () => {
+        // 일반 전화번호 유효성 검사 (빈칸이거나 지역번호-XXXX-XXXX 또는 XXXX-XXXX 형식)
+        const regex = /^01[0-9]-?\d{3,4}-?\d{4}$/;
+        if (emergencyContact === '' || regex.test(emergencyContact)) {
+            setEmergencyContactError(''); // 빈칸이거나 유효한 형식일 경우 에러 메시지 초기화
+        } else {
+            setEmergencyContactError('유효한 휴대폰 번호를 입력하세요. 예시: 010-1234-5678 또는 01012345678');
+        }
     };
 
     useEffect(() => {
@@ -234,7 +254,8 @@ const ShowInfo = () => {
                 setGuardianBirth(guardianData.birthDate);
                 setGuardianEmail(guardianData.email);
                 setGuardianAddress(guardianData.address);
-                setGuardianDetailedAddress(guardianData.detailedAddress);
+                setGuardianDetailedAddress(guardianData.detailedAddress); 
+                setGuardianPostalCode(guardianData.postalCode);
                 setGuardianPhone(guardianData.phone);
                 setGuardianTel(guardianData.tel || '');
 
@@ -255,11 +276,14 @@ const ShowInfo = () => {
                     setDetailedAddress(memberData.detailedAddress);
                     setPhoneNumber(memberData.phone);
                     setHomeNumber(memberData.tel || '');
+                    setPostalCode(memberData.postalCode || '');
                     setAge(memberData.age);
                     setMedicalHistory(memberData.medicalHistory);
                     setMilkDeliveryRequest(memberData.milkDeliveryRequest);
                     setNotes(memberData.notes);
                     setRelationship(memberData.relationship);
+                    setEmergencyContact(memberData.emergencyContact);
+                    setDocumentAttachment(memberData.documentAttachment);
                 }
             } catch (error) {
                 console.error('정보 가져오기 실패:', error);
@@ -310,8 +334,7 @@ const ShowInfo = () => {
     };
 
     const handleSave = async () => {
-        console.log("저장 전 상세주소 값:", detailedAddress); // 저장 전 값 로그 출력
-        console.log("저장 전 우편번호 값:", postalCode); 
+        console.log("milkDeliveryRequest 값:", milkDeliveryRequest); 
         try {
             // 서버에 수정된 데이터를 PATCH 요청
             await axios.patch(
@@ -325,18 +348,18 @@ const ShowInfo = () => {
                     postalCode: postalCode?.trim() || '',
                     age: age || '',
                     documentAttachment: file || null,  // 파일이 없을 때 null
-                    milkDeliveryRequest: milkDeliveryRequest || false,
+                    milkDeliveryRequest: milkDeliveryRequest === true ? true : false, 
                     notes: notes?.trim() || '',
                     medicalHistory: medicalHistory?.trim() || '',
                     latitude: latitude || '',
                     longitude: longitude || '',
-                    emergencyContact: emergencyContact?.trim() || ''
+                    emergencyContact: emergencyContact?.trim() || '',                    
                 },
                 { 
                     headers: { Authorization: `Bearer ${accessToken}` } 
                 }
             );
-
+            console.log("milkDeliveryRequest 값:", milkDeliveryRequest); 
             await axios.patch(
                 `${process.env.REACT_APP_apiHome}guardians/${guardianInfo.guardianId}`,
                 {
@@ -346,7 +369,8 @@ const ShowInfo = () => {
                     address: guardianAddress?.trim() || '',
                     detailedAddress: guardianDetailedAddress?.trim(),
                     phone: guardianPhone?.trim() || '',
-                    tel: guardianTel?.trim() || ''
+                    tel: guardianTel?.trim() || '',
+                    postalCode: guardianPostalCode?.trim() || ''
                 },
                 { 
                     headers: { Authorization: `Bearer ${accessToken}` } 
@@ -420,6 +444,20 @@ const ShowInfo = () => {
                         </div>
                     </div>
                     <div className='signup-input-line'>
+                        <div className="signup-title">비상연락처</div>
+                        <div className="signup-input-box">
+                            <input
+                                className="signup-input"
+                                value={emergencyContact}
+                                onBlur={handleEmergencyContactBlur}
+                                onChange={handleEmergencyContactChange}
+                            />
+                            <div className={`signup-guide ${emergencyContactError ? 'error' : ''}`}>
+                                {emergencyContactError || '보호자가 연락되지 않을 경우에 사용됩니다. / 없다면 빈칸도 허용합니다.'}
+                            </div>
+                        </div>
+                    </div>
+                    <div className='signup-input-line'>
                         <div className="signup-title">대상자 나이 (만 나이)</div>
                         <div className="signup-input-box">
                             <input 
@@ -452,13 +490,13 @@ const ShowInfo = () => {
                                     id={3}
                                     title="신청"
                                     checked={milkDeliveryRequest === true}
-                                    onChange={() => setMilkDeliveryRequest(true)}
+                                    onChange={() => handleMilkDeliveryRequestChange(true)}
                                 />
                                 <Checkbox
                                     id={4}
                                     title="미신청"
                                     checked={milkDeliveryRequest === false}
-                                    onChange={() => setMilkDeliveryRequest(false)}
+                                    onChange={() => handleMilkDeliveryRequestChange(false)}
                                 />
                             </div>
                             <div className="signup-guide-milk">*우유 가정 배달 서비스는 우유배달을 통해 안부를 묻는 서비스입니다.</div>

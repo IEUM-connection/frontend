@@ -27,7 +27,7 @@ const ShowInfo = () => {
                 <div className="post-question-container">
                     <div className='signup-input-line'>
                         <div className="post-question-title">문의제목</div>
-                        <div className="post-question-title-input" type="text">{faqDetail.title}</div>
+                        <div className="post-question-title-input-fna" type="text">{faqDetail.title}</div>
                     </div> 
                 </div>
                 <div className='post-question-line-1'>

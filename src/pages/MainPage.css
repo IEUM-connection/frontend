@@ -43,6 +43,11 @@ h3 {
     font-size: 23px; 
 }
 
+.introduce-text {
+    margin-left: 10px;
+    color: #454545;
+}
+
 .intro-title {
     font-size: 38px;
     font-weight: bold;
@@ -66,25 +71,66 @@ h3 {
     margin-bottom: 120px;
 }
 
-.introduce-text {
-    margin-left: 100px;
-    color: #454545;
-}
-
 .introduce-map-img {
     margin-left: auto;
-    margin-right: 40px;
+    margin-right: 10px;
 }
 
 .introduce-map-img img {
-    width: 720px;
+    width: 920px;
 }
 
 .introduce-img {
     margin-left: auto;
-    margin-right: 100px;
+    margin-right: 20px;
 }
 
 .introduce-img img {
-    width: 350px;
+    width: 470px;
+}
+
+.scroll-container {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+}
+
+.section {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 1s ease-out;
+}
+
+.section.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-section {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .section {
+        scroll-snap-align: none;
+    }
+    
+    .introduce-container {
+        padding: 1rem;
+    }
+}
+
+.introduce-service-img {
+    margin-left: 40px;
+}
+
+.introduce-service-img img{
+    width: 400px;
 }
