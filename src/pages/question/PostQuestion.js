@@ -57,7 +57,7 @@ const PostQuestion = () => {
                 </div>
                 <div className='post-question-line'>
                     <div className="post-question-title">문의시간</div>
-                    <div className="post-question-content">{currentTime}</div>
+                    <div className="post-question-content-time">{currentTime}</div>
                     <div className="post-question-title">문의상태</div>
                     <div className="post-question-content">-</div>
                 </div>

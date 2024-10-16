@@ -25,20 +25,26 @@ const MyQuestionInfo = ({ currentPage, totalItems, paginatedData }) => {
                     <div className="header-type"> 문의 상태 </div>
                     <div className="header-date"> 문의 날짜 </div>
                 </div>
-                {paginatedData.length > 0 ? paginatedData.map((item, index) => (
-                    <div className="memberHistory-content" 
-                        key={item.questionId} 
-                        onClick={() => navigate('/myquestion/detail', { state: { item } })}
-                    >
-                        <div className="header-number"> {item.questionId} </div>
-                        <div className="header-history"> {item.questionTitle} </div>
-                        <div className="header-type"> {item.questionStatus === "PENDING" ? "답변대기중" : "답변완료"} </div>
-                        <div className="header-date"> {simpleday(item.questionDate)} </div>
+                {paginatedData.length > 0 ? (
+                    paginatedData.map((item, index) => (
+                        <div className="memberHistory-content" 
+                            key={item.questionId} 
+                            onClick={() => navigate('/myquestion/detail', { state: { item } })}
+                        >
+                            <div className="header-number"> {item.questionId} </div>
+                            <div className="header-history"> {item.questionTitle} </div>
+                            <div className="header-type"> {item.questionStatus === "PENDING" ? "답변대기중" : "답변완료"} </div>
+                            <div className="header-date"> {simpleday(item.questionDate)} </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="no-questions">
+                        작성한 질문이 없습니다.
                     </div>
-                )) : <></>}
+                )}
             </div>
         </div>
-    )
+    );
 };
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -157,17 +163,20 @@ const MyQuestion = () => {
         <div className="app">
             <Header />
             <HeaderBottom text={["고객센터", "자주묻는질문", "내질문조회"]} onNavigate={handleNavigation} />
-            {loginType === 'ADMIN' ? (
-            <div className="admin-message">
-                관리자는 이용할 수 없습니다.
-                <br/>관리자 페이지의 문의내역 게시판을 확인해주세요.
-            </div>
-        ) : (
-            <>
-                <MyQuestionInfo currentPage={currentPage} totalItems={totalItems} paginatedData={paginatedData} />
-                <Pagination currentPage={currentPage} totalPages={totalPage} onPageChange={handlePageChange} />
-            </>
-        )}
+            {!userInfo ? (
+                <div className="admin-message">
+                    로그인 후 이용해주세요.
+                </div>
+            ) : loginType !== 'ADMIN' ? (
+                <>
+                    <MyQuestionInfo currentPage={currentPage} totalItems={totalItems} paginatedData={paginatedData} />
+                    <Pagination currentPage={currentPage} totalPages={totalPage} onPageChange={handlePageChange} />
+                    </>
+            ) : (
+                <div className="admin-message">
+                    관리자는 관리자 페이지를 이용해주세요.
+                </div>
+            )}
             <Footer />
         </div>
     );

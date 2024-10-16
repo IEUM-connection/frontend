@@ -76,6 +76,10 @@
     text-align: center;
 }
 
+.changed-field {
+    margin-bottom: 10px;
+}
+
 .changed-field-name {
     font-weight: 700;
 }

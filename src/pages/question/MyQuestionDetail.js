@@ -31,7 +31,7 @@ const MyQuestionInfo = () => {
                 </div>
                 <div className='post-question-line'>
                     <div className="post-question-title">문의시간</div>
-                    <div className="post-question-content">{simpleday(item.questionDate)}</div>
+                    <div className="post-question-content-time">{simpleday(item.questionDate)}</div>
                     <div className="post-question-title">문의상태</div>
                     <div className="post-question-content">{item.questionStatus === "PENDING" ? "답변대기중" : "답변완료" || '-'}</div>
                 </div>

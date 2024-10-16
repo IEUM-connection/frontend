@@ -1,5 +1,6 @@
 .applicant-info-title {
     width: 180px;
+    min-width: 174px;
     height: auto;
     min-height: 78px;
     display: flex;
@@ -15,9 +16,10 @@
 
 .applicant-info-content {
     width: 320px;
-    padding: 20px 10px;
-    text-indent: 20px; 
+    padding: 20px 30px;
+    /* text-indent: 20px;  */
     height: auto;
+    overflow-x: auto;
 }
 
 .applicant-info-title-Request {
@@ -105,7 +107,7 @@
 }
 
 .file-name-box {
-    padding: 10px 0 10px 30px;
+    padding: 10px 0 10px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;

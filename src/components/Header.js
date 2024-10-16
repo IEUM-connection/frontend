@@ -32,24 +32,24 @@ const Header = () => {
         navigate('/');
     };
     
-    //알림 숫자 더미데이터 (나중에 지우고 데이터 받아오기)
-    useEffect(() => {
-        setAlertCount(20);
-    }, []);
+    // //알림 숫자 더미데이터 (나중에 지우고 데이터 받아오기)
+    // useEffect(() => {
+    //     setAlertCount(20);
+    // }, []);
 
-    const handleAlertClick = () => {
-        if (isAlertModalOpen) {
-            setIsAlertModalOpen(false);
-            setAlertCount(0);
-        } else if (alertCount > 0) {
-            setIsAlertModalOpen(true);
-        }
-    };
+    // const handleAlertClick = () => {
+    //     if (isAlertModalOpen) {
+    //         setIsAlertModalOpen(false);
+    //         setAlertCount(0);
+    //     } else if (alertCount > 0) {
+    //         setIsAlertModalOpen(true);
+    //     }
+    // };
 
-    const closeAlertModal = () => {
-        setIsAlertModalOpen(false);
-        setAlertCount(0);
-    }; 
+    // const closeAlertModal = () => {
+    //     setIsAlertModalOpen(false);
+    //     setAlertCount(0);
+    // }; 
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -102,12 +102,12 @@ const Header = () => {
             </div>
             {isLoggedIn ? (
                     <div className="user-info-container">
-                        <div className="alert-icon" onClick={handleAlertClick}>
+                        {/* <div className="alert-icon" onClick={handleAlertClick}>
                             <img src="/image/alert.png" alt="알림" />
                             {alertCount > 0 && (
                                 <div className="alert-count">{alertCount}</div>
                             )}
-                        </div>
+                        </div> */}
                         <div className="user-welcome">
                             {userDetails ? (
                                 <>
