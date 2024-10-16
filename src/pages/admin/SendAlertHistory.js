@@ -26,7 +26,7 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
                     onClick={() => navigate(`/admin/alert/info/${item.alertId}`, { state: { item } })}>
                         <div className="header-number"> {startIndex + index + 1} </div>
                         <div className="header-type"> {item.alertType} </div>
-                        <div className="header-history"> {item.message} </div>
+                        <div className="header-history"> {item.recipient} </div>
                         <div className="header-date"> {new Date(item.createdAt).toLocaleDateString()} </div>
                     </div>
                 ))}
