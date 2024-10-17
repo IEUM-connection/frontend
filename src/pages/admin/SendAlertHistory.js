@@ -24,7 +24,7 @@ const HistoryInfo = ({ currentPage, itemsPerPage, totalItems, historyData }) => 
                 </div>
                 {paginatedData.map((item, index) => (
                     <div className="memberHistory-content" key={item.alertId} 
-                         onClick={() => navigate(`/admin/sendAlertInfo/${item.alertId}`, { state: { item } })}>
+                         onClick={() => navigate(`/admin/${item.alertId}`, { state: { item } })}>
                         <div className="header-number">  {totalItems - startIndex - index} </div> {/* 역순 번호 */}
                         <div className="header-type"> {item.alertType} </div>
                         <div className="header-history"> {item.recipient} </div>
