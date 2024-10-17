@@ -24,6 +24,8 @@ import MemberInfo from './pages/admin/MemberInfo';
 import MemberNoteHistory from './pages/admin/MemberNoteHistory';
 import { AuthProvider } from './auth/AuthContext';
 import ProtectedRoute from './auth/ProtectedRoute';
+import TermOfUse from './pages/termOfUse/TermOfUse';
+import PersonalInfo from './pages/termOfUse/Personalnfo';
 
 const App = () => {
   return (
@@ -32,6 +34,8 @@ const App = () => {
           <Routes>
               <Route path="/" element={<MainPage />}/>
               <Route path="/signup" element={<SignupPage />}/>
+              <Route path="/personalInfo" element={<PersonalInfo/>}/>
+              <Route path="/termOfUse" element={<TermOfUse/>}/>
               <Route path="/membermap" element={<MemberMap />}/>
               <Route path="/request" element={<RequestPage />}/>
               <Route path="/mypage" element={<MyPage />}/>

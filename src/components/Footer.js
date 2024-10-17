@@ -16,9 +16,9 @@ const Footer = () => {
                 <div className="footer-copyright">Copyright 2024 All ⓒ rights reserved</div>
             </div>
             <div className="footer-contents">
-                <div className="footer-content">고객센터</div>
-                <div className="footer-content">이용약관</div>
-                <div className="footer-content">개인정보처리방침</div>
+                <div className="footer-content" onClick={() => navigate('/service')}>고객센터</div>
+                <div className="footer-content" onClick={() => navigate('/termOfUse')}>이용약관</div>
+                <div className="footer-content" onClick={() => navigate('/personalInfo')}>개인정보처리방침</div>
             </div>
         </div>
     );
