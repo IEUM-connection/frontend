@@ -8,7 +8,16 @@
     height: 90px;
     display: flex;
     align-items: center; 
-    border-bottom: 1px solid #D5D1D1;
+}
+
+.header-line {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    width: 100vw;
+    height: 1px;
+    background-color: #D5D1D1;
+    z-index: 10;
 }
 
 .bar-wrap {

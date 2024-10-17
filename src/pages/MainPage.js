@@ -72,10 +72,9 @@ const ScrollSection = ({ children, className = '' }) => {
 
 const IntroduceService = () => {
     return (
-        <div className="main-contents">
+        <div className="main-contents"> 서비스 소개
             <ScrollSection>
                 <div className="intro-section">
-                    서비스 소개
                     <div className="introduce-container">
                         <div className="intro-title">
                             당신을 혼자 두고 싶지 않다는 마음
@@ -135,6 +134,7 @@ const IntroduceService = () => {
                         <div className="intro-title">근처 병원 및 약 복용 시간 <br/>알림까지</div>
                         <div className="intro-content">
                             주변 병원을 간편하게 찾아보세요. <br/>
+                            전화연결이 가능합니다. <br/>
                             또한 규칙적인 복용시간 알람 기능으로<br/>
                             잊어버리지 않고 제때 섭취하도록 도와드립니다.<br/>
                         </div>
@@ -150,14 +150,15 @@ const IntroduceService = () => {
                     후원 안내
                     <div className="introduce-container">
                         <div className="intro-title">
-                            따뜻한 마음이 모여 만드는 당신의 온기
+                            기억 속 따뜻했던,  <br/>
+                            내게 내민 당신의 따뜻한 손길 <br/>
                             <div className="intro-content">
-                            독거노인 및 저소득 1인 가구를 위해 꼭 필요한 물품을 후원합니다.<br/><br/>
+                            독거노인 및 저소득 1인 가구를 위해 꼭 필요한 물품을 후원합니다.<br/><br/><br/>
 
                             일시 후원<br/>
-                            계좌번호 : 신한은행 000-000-000000 (예금주 : 이음)<br/><br/>
+                            계좌번호 : 신한은행 000-000-000000 (예금주 : 이음)<br/><br/><br/>
 
-                            후원시 유의사항<br/>
+                            ☘︎ 후원시 유의사항<br/>
                             후원금에 대해서는 개인 후원자는 소득세법, 단체 후원자는 법인세법에 의거하여 <br/>
                             세금 공제 혜택을 받으실 수 있습니다.<br/>
                             기부금 영수증 발행을 받으시려면 주민번호 또는 사업자 번호를 제출하셔야 합니다.<br/>
@@ -165,7 +166,7 @@ const IntroduceService = () => {
                             기부금 영수증은 유선으로 필요 한달 전 신청 바랍니다.<br/>
                             </div>
                         </div>
-                        <div className="introduce-img">
+                        <div className="introduce-img-give">
                             <img src="/image/hand.png" alt="휴대폰2" />
                         </div>
                     </div>
@@ -179,6 +180,7 @@ const MainPage = () => {
     return (
         <div className="app">
             <Header />
+            <div className="header-line"></div>
             <ShowService/>
             <IntroduceService/>
             <Footer />

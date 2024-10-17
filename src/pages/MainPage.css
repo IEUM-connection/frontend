@@ -1,5 +1,5 @@
 .main-banner {
-    margin-top: 30px;
+    margin-top: 70px;
     width: 100%;
     height: 450px;
 }
@@ -34,7 +34,8 @@ h3 {
 
 .main-contents {
     width: 100%;
-    margin-top: 160px;
+    margin-top: 200px;
+    font-size: 23px; 
 }
 
 .intro-section {
@@ -56,7 +57,7 @@ h3 {
 }
 
 .intro-content {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 400;
     margin-top: 30px;
     line-height: 1.5;
@@ -66,9 +67,20 @@ h3 {
 .introduce-container {
     display: flex;
     align-items: center;
+    flex-direction: row;
+    padding-left: 20px;
     width: 1280px;
     height: 500px;
-    margin-bottom: 120px;
+    margin-bottom: 40px;
+}
+
+
+.introduce-service-img {
+    margin-left: 240px;
+}
+
+.introduce-service-img img{
+    width: 400px;
 }
 
 .introduce-map-img {
@@ -87,6 +99,16 @@ h3 {
 
 .introduce-img img {
     width: 470px;
+}
+
+.introduce-img-give {
+    margin-left: auto;
+    margin-right: 20px;
+    margin-top: 20px;
+}
+
+.introduce-img-give img {
+    width: 540px;
 }
 
 .scroll-container {
@@ -125,12 +147,4 @@ h3 {
     .introduce-container {
         padding: 1rem;
     }
-}
-
-.introduce-service-img {
-    margin-left: 40px;
-}
-
-.introduce-service-img img{
-    width: 400px;
 }
