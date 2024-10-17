@@ -17,6 +17,7 @@ import FnaPage from './pages/question/FnaPage';
 import ServiceRequestDetail from './pages/admin/ServiceRequetsDetail';
 import SendAlert from './pages/admin/SendAlert';
 import SendAlertHistory from './pages/admin/SendAlertHistory';
+import SendAlertInfo from './pages/admin/SendAlertInfo';
 import QuestionBoard from './pages/admin/QuestionBoard';
 import QuestionInfo from './pages/admin/QuestionInfo';
 import MemberManagement from './pages/admin/MemberManagement';
@@ -50,6 +51,7 @@ const App = () => {
               <Route path="/fna-detail/:id" element={<FnaPage/>}/>
               <Route path="/admin/serviceRequest/:memberId" element={<ProtectedRoute element={<ServiceRequestDetail />} />} />
               <Route path="/admin/sendAlert" element={<ProtectedRoute element={<SendAlert/>}/>}/>
+              <Route path="/admin/:alertId" element={<ProtectedRoute element={<SendAlertInfo/>}/>}/>
               <Route path="/admin/sendAlerts" element={<ProtectedRoute element={<SendAlertHistory/>}/>}/>
               <Route path="/admin/question" element={<ProtectedRoute element={<QuestionBoard/>}/>}/>
               <Route path="/admin/question/info" element={<ProtectedRoute element={<QuestionInfo/>}/>}/>

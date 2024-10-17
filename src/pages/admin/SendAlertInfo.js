@@ -70,7 +70,7 @@ const AdminAlert = () => {
                     <div className="alert-detail-info">{alertData.status}</div>
                 </div>
                 <div className='post-question-line-1'>
-                    <div className="post-question-title-1">알림 내용</div>
+                    <div className="post-question-title-2">알림 내용</div>
                     <div className="alert-message">{alertData.message}</div>
                 </div>
             </div>

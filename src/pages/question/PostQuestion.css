@@ -65,8 +65,8 @@
     /* margin-bottom: 20px; */
 }
 
-.post-question-title-1 {
-    width: 190px;
+.post-question-title-1, .post-question-title-2 {
+    width: 193px;
     min-width: 162px;
     height: 400px;
     min-height: 78px;
@@ -79,6 +79,10 @@
     font-weight: 500;
     padding-left: 30px;
     box-sizing: border-box;
+}
+
+.post-question-title-2 {
+    width: 190px;
 }
 
 .post-question-content-1 {
